@@ -14,9 +14,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override Address GenerateCode(List<Instruction> instructions)
         {
-            Address address = new Address();
-            instructions.Add(new AssignmentInstruction(address, Value));
-            return address;
+            return new Address("", "" + Value);
         }
 
         public override string ToString()

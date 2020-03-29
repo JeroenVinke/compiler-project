@@ -1,9 +1,11 @@
 ﻿{
     int bar;
+    int foo;
 
     bar = 0;
+    foo = 0;
     
-    while(bar < 10) {
+    if(bar < 10 && foo < 10) {
         bar = bar + 1;
     }
 

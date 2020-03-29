@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
-    public class WhileASTNode : StatementASTNode
+    public class IfASTNode : StatementASTNode
     {
         public BooleanExpressionASTNode Condition { get; set; }
         public StatementsASTNode Body { get; set; }
 
-        public WhileASTNode() : base(SyntaxTreeNodeType.While)
+        public IfASTNode() : base(SyntaxTreeNodeType.While)
         {
         }
 
@@ -20,7 +20,6 @@ namespace Compiler.Parser.SyntaxTreeNodes
             Label trueLabel = new Label();
             instructions.Add(trueLabel);
             Body.GenerateCode(instructions);
-            instructions.Add(new JumpInstruction(trueLabel));
 
             Label falseLabel = new Label();
             instructions.Add(falseLabel);

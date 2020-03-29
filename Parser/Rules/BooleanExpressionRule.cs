@@ -29,34 +29,11 @@ namespace Compiler.Parser.Rules
                 new List<SubProduction>
                 {
                     OrRule(),
-                    //AndRule(),
+                    AndRule(),
                     EmptyRule()
                 }
             ));
         }
-
-        //private static SubProduction AndRule()
-        //{
-        //    return new SubProduction
-        //    (
-        //        new List<ExpressionDefinition>
-        //        {
-        //            new TerminalExpressionDefinition { TokenType = TokenType.And },
-        //            new NonTerminalExpressionDefinition { Identifier = "Boolean" },
-        //            new NonTerminalExpressionDefinition { Identifier = "BooleanExpression`" },
-        //            new SemanticAction((ParsingNode node) =>
-        //            {
-        //                SyntaxTreeNode syntaxTreeNode = new SyntaxTreeNode(SyntaxTreeNodeType.And, node);
-        //                syntaxTreeNode.AddChild(node.GetAttributeForKey<SyntaxTreeNode>("Boolean", "syntaxtreenode"));
-        //                syntaxTreeNode.AddChildren(node.GetAttributeForKey<List<SyntaxTreeNode>>("BooleanExpression`", "syntaxtreenode"));
-        //                node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
-
-        //                node.Attributes.Add("code", $"{node.GetAttributeForKey<string>("Boolean", "code")}\r\n{node.GetAttributeForKey<Label>("Boolean", "false")}\r\n" +
-        //                    $"{node.GetAttributeForKey<string>("BooleanExpression`", "code")}");
-        //            })
-        //        }
-        //    );
-        //}
 
         private static SubProduction EmptyRule()
         {
@@ -96,6 +73,31 @@ namespace Compiler.Parser.Rules
                     })
                 }
             );
-        }    
+        }
+
+        private static SubProduction AndRule()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new TerminalExpressionDefinition { TokenType = TokenType.And },
+                    new NonTerminalExpressionDefinition { Identifier = "Boolean" },
+                    new SemanticAction((ParsingNode node) =>
+                    {
+                        node.GetNodeForKey("BooleanExpression`").Attributes.Add("inh", node.GetAttributeForKey<FactorASTNode>("Boolean", "syntaxtreenode"));
+                    }),
+                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression`" },
+                    new SemanticAction((ParsingNode node) =>
+                    {
+                        BooleanExpressionASTNode left = node.GetAttribute<BooleanExpressionASTNode>("inh");
+                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression`", "syntaxtreenode");
+
+                        AndASTNode syntaxTreeNode = new AndASTNode(left, right);
+                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                    })
+                }
+            );
+        }
     }
 }

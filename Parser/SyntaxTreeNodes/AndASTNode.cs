@@ -1,14 +1,15 @@
-﻿using Compiler.Parser.Common;
+﻿using Compiler.Common.Instructions;
+using Compiler.Parser.Common;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
-    public class OrASTNode : BooleanExpressionASTNode
+    public class AndASTNode : BooleanExpressionASTNode
     {
         public BooleanExpressionASTNode Left { get; private set; }
         public BooleanExpressionASTNode Right { get; private set; }
 
-        public OrASTNode(BooleanExpressionASTNode left, BooleanExpressionASTNode right) : base(SyntaxTreeNodeType.Or)
+        public AndASTNode(BooleanExpressionASTNode left, BooleanExpressionASTNode right) : base(SyntaxTreeNodeType.And)
         {
             Left = left;
             Right = right;
@@ -17,7 +18,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
         public override Address GenerateCode(List<Instruction> instructions)
         {
             Left.GenerateCode(instructions);
-            TrueList.AddRange(Left.TrueList);
+            FalseList.AddRange(Left.FalseList);
 
             Right.GenerateCode(instructions);
             TrueList.AddRange(Right.TrueList);
@@ -28,7 +29,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override string ToString()
         {
-            return "||";
+            return "&&";
         }
 
         protected override List<SyntaxTreeNode> GetChildren()

@@ -1,5 +1,4 @@
-﻿using Compiler;
-using Compiler.Parser.Common;
+﻿using Compiler.Parser.Common;
 using System;
 
 namespace Compiler.Common
@@ -11,7 +10,19 @@ namespace Compiler.Common
         public object Value { get; set; }
         public int Id { get; set; }
         public static int MaxId { get; set; } = 0;
-        public Address Address { get; set; } = new Address("s");
+        private Address _address;
+        public Address Address
+        {
+            get
+            {
+                if (_address == null)
+                {
+                    _address = new Address("", Name + Id.ToString());
+                }
+
+                return _address;
+            }
+        }
 
         public SymbolTableEntry()
         {

@@ -1,6 +1,5 @@
 ﻿using Compiler.Common;
 using Compiler.Parser.Common;
-using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.SyntaxTreeNodes
@@ -43,6 +42,39 @@ namespace Compiler.Parser.SyntaxTreeNodes
             }
         }
 
+        public string OppositeRelOpAsString
+        {
+            get
+            {
+                if (RelationOperator == RelOp.Equals)
+                {
+                    return "!=";
+                }
+                if (RelationOperator == RelOp.NotEquals)
+                {
+                    return "==";
+                }
+                if (RelationOperator == RelOp.GreaterOrEqualThan)
+                {
+                    return "<";
+                }
+                if (RelationOperator == RelOp.GreaterThan)
+                {
+                    return "<=";
+                }
+                if (RelationOperator == RelOp.LessOrEqualThan)
+                {
+                    return ">";
+                }
+                if (RelationOperator == RelOp.LessThan)
+                {
+                    return ">=";
+                }
+
+                return "";
+            }
+        }
+
         public RelOpASTNode(FactorASTNode left, RelOp relationOperator, FactorASTNode right) : base(SyntaxTreeNodeType.RelOp)
         {
             Left = left;
@@ -61,7 +93,13 @@ namespace Compiler.Parser.SyntaxTreeNodes
             Address address2 = Right.GenerateCode(instructions);
             Address result = new Address();
 
-            instructions.Add(new IfJumpInstruction(address1, RelOpAsString, address2, null));
+            IfJumpInstruction falseInstruction = new IfJumpInstruction(address1, OppositeRelOpAsString, address2, null);
+            instructions.Add(falseInstruction);
+            FalseList.Add(falseInstruction);
+
+            IfJumpInstruction trueInstruction = new IfJumpInstruction(address1, RelOpAsString, address2, null);
+            instructions.Add(trueInstruction);
+            TrueList.Add(trueInstruction);
 
             return result;
         }

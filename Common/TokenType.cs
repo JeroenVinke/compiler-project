@@ -25,6 +25,7 @@
         While,
         Or,
         And,
-        RelOp
+        RelOp,
+        If
     }
 }

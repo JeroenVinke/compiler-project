@@ -5,16 +5,18 @@
         public static int MaxId { get; set; }
         public int Id { get; set; }
         public string Prefix { get; set; }
+        public string DisplayValue { get; set; }
 
-        public Address(string prefix = "t")
+        public Address(string prefix = "t", string display = "")
         {
             Prefix = prefix;
             Id = MaxId++;
+            DisplayValue = display;
         }
 
         public override string ToString()
         {
-            return Prefix + Id;
+            return Prefix + (!string.IsNullOrEmpty(DisplayValue) ? DisplayValue : "" + Id);
         }
     }
 }

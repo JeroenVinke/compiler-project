@@ -108,7 +108,7 @@ namespace Compiler.Common
 
             foreach (SymbolTableEntry entry in Entries)
             {
-                result += "<tr><td>" + entry.Name + "</td><td>" + Enum.GetName(typeof(SymbolTableEntryType), entry.Type) + "</td></tr>";
+                result += "<tr><td>" + entry.Name + "</td><td>" + Enum.GetName(typeof(SymbolTableEntryType), entry.Type) + "</td><td>" + entry.Address.ToString() + "</td></tr>";
             }
 
             result += "</table>>]\r\n";

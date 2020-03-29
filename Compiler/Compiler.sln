@@ -11,11 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parser", "..\Parser\Parser.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "..\Common\Common.csproj", "{38678C07-CFBF-4011-AE1B-894580EB61C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IL", "..\IL\IL.csproj", "{D8FC68CD-0A71-45FC-8F53-32AA88C7E0DA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegularExpressionEngine", "..\RegularExpressionEngine\RegularExpressionEngine.csproj", "{44BE8A35-1A3E-42AD-A34B-570F2182F0C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegularExpressionEngine.Tests", "..\RegularExpressionEngine.Tests\RegularExpressionEngine.Tests.csproj", "{4F99EBE3-518B-437F-9E6A-849DC6ADAA43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegularExpressionEngine.Tests", "..\RegularExpressionEngine.Tests\RegularExpressionEngine.Tests.csproj", "{4F99EBE3-518B-437F-9E6A-849DC6ADAA43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +37,6 @@ Global
 		{38678C07-CFBF-4011-AE1B-894580EB61C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38678C07-CFBF-4011-AE1B-894580EB61C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38678C07-CFBF-4011-AE1B-894580EB61C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8FC68CD-0A71-45FC-8F53-32AA88C7E0DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8FC68CD-0A71-45FC-8F53-32AA88C7E0DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8FC68CD-0A71-45FC-8F53-32AA88C7E0DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8FC68CD-0A71-45FC-8F53-32AA88C7E0DA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44BE8A35-1A3E-42AD-A34B-570F2182F0C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44BE8A35-1A3E-42AD-A34B-570F2182F0C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44BE8A35-1A3E-42AD-A34B-570F2182F0C4}.Release|Any CPU.ActiveCfg = Release|Any CPU

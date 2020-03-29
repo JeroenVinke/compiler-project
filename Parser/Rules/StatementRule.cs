@@ -32,7 +32,8 @@ namespace Compiler.Parser.Rules
                     Declaration(),
                     Codeblock(),
                     Assignment(),
-                    While()
+                    While(),
+                    If()
                 }
             ));
         }
@@ -51,6 +52,28 @@ namespace Compiler.Parser.Rules
                     new SemanticAction((ParsingNode node) =>
                     {
                         WhileASTNode syntaxTreeNode = new WhileASTNode();
+                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                        syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    })
+                }
+            );
+        }
+
+        private static SubProduction If()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new TerminalExpressionDefinition { TokenType = TokenType.If },
+                    new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
+                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
+                    new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
+                    new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
+                    new SemanticAction((ParsingNode node) =>
+                    {
+                        IfASTNode syntaxTreeNode = new IfASTNode();
                         syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
                         syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
                         node.Attributes["syntaxtreenode"] = syntaxTreeNode;

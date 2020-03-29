@@ -36,6 +36,7 @@ namespace Compiler
             lexLanguage.Add("\\-#", (string value) => { return new WordToken { Type = TokenType.Minus }; });
             lexLanguage.Add("\\*#", (string value) => { return new WordToken { Type = TokenType.Multiplication }; });
             lexLanguage.Add("\\/#", (string value) => { return new WordToken { Type = TokenType.Division }; });
+            lexLanguage.Add("if#", (string value) => { return new WordToken { Type = TokenType.If }; });
             lexLanguage.Add("while#", (string value) => { return new WordToken { Type = TokenType.While }; });
             lexLanguage.Add("(true|false)#", (string value) => { return new WordToken { Type = TokenType.Boolean }; });
             lexLanguage.Add("(string|int|void)#", (string value) => { return new WordToken { Type = TokenType.TypeDeclaration }; });
@@ -69,7 +70,6 @@ namespace Compiler
             StatementsRule.Initialize(ref grammar);
             StatementRule.Initialize(ref grammar);
             DeclarationRule.Initialize(ref grammar);
-            //TypeDeclarationRule.Initialize(ref grammar);
             BooleanExpressionRule.Initialize(ref grammar);
             BooleanRule.Initialize(ref grammar);
             NumericExpressionRule.Initialize(ref grammar);
@@ -89,7 +89,12 @@ namespace Compiler
 
             foreach(Instruction instruction in instructions)
             {
-                Console.WriteLine(instruction.GenerateCodeString());
+                string code = instruction.GenerateCodeString();
+
+                if (!string.IsNullOrEmpty(code))
+                {
+                    Console.WriteLine(code);
+                }
             }
 
             string result = "";
