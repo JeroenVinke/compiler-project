@@ -1,0 +1,11 @@
+﻿{
+    int bar;
+
+    bar = 0;
+    
+    while(bar < 10) {
+        bar = bar + 1;
+    }
+
+    bar = 20;
+}
