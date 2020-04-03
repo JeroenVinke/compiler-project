@@ -49,10 +49,10 @@ namespace Compiler.Parser.Rules
                         new List<ExpressionDefinition>
                         {
                             new NonTerminalExpressionDefinition { Identifier = "OpenStatement" },
-                            new SemanticAction((ParsingNode node) =>
-                            {
-                                node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementASTNode>("OpenStatement", "syntaxtreenode");
-                            })
+                            //new SemanticAction((ParsingNode node) =>
+                            //{
+                            //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementASTNode>("OpenStatement", "syntaxtreenode");
+                            //})
                         }
                     ),
                     new SubProduction
@@ -60,10 +60,10 @@ namespace Compiler.Parser.Rules
                         new List<ExpressionDefinition>
                         {
                             new NonTerminalExpressionDefinition { Identifier = "ClosedStatement" },
-                            new SemanticAction((ParsingNode node) =>
-                            {
-                                node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementASTNode>("ClosedStatement", "syntaxtreenode");
-                            })
+                            //new SemanticAction((ParsingNode node) =>
+                            //{
+                            //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementASTNode>("ClosedStatement", "syntaxtreenode");
+                            //})
                         }
                     )
                 }
@@ -108,13 +108,13 @@ namespace Compiler.Parser.Rules
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
                     new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        WhileASTNode syntaxTreeNode = new WhileASTNode();
-                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
-                    })
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    WhileASTNode syntaxTreeNode = new WhileASTNode();
+                    //    syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                    //    syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //    node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    //})
                 }
             );
         }
@@ -130,13 +130,13 @@ namespace Compiler.Parser.Rules
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
                     new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        IfASTNode syntaxTreeNode = new IfASTNode();
-                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
-                    })
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    IfASTNode syntaxTreeNode = new IfASTNode();
+                    //    syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                    //    syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //    node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    //})
                 }
             );
         }
@@ -154,13 +154,13 @@ namespace Compiler.Parser.Rules
                     new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Else },
                     new NonTerminalExpressionDefinition { Identifier = "OpenStatement" },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        IfASTNode syntaxTreeNode = new IfASTNode();
-                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
-                    })
+                    //new SemanticActionDefinition((ParsingNode node) =>
+                    //{
+                    //    IfASTNode syntaxTreeNode = new IfASTNode();
+                    //    syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                    //    syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //    node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    //})
                 }
             );
         }
@@ -178,7 +178,7 @@ namespace Compiler.Parser.Rules
                     new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Else },
                     new NonTerminalExpressionDefinition { Identifier = "ClosedStatement" },
-                    new SemanticAction((ParsingNode node) =>
+                    new SemanticActionDefinition((ParsingNode node) =>
                     {
                         IfASTNode syntaxTreeNode = new IfASTNode();
                         syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
@@ -251,13 +251,13 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.Assignment },
                     new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        AssignmentASTNode syntaxTreeNode = new AssignmentASTNode();
-                        syntaxTreeNode.SymbolTableEntry = node.GetAttributeForKey<SymbolTableEntry>("Identifier", "symboltableentry");
-                        syntaxTreeNode.Value = node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression", "syntaxtreenode");
-                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
-                    })
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    AssignmentASTNode syntaxTreeNode = new AssignmentASTNode();
+                    //    syntaxTreeNode.SymbolTableEntry = node.GetAttributeForKey<SymbolTableEntry>("Identifier", "symboltableentry");
+                    //    syntaxTreeNode.Value = node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression", "syntaxtreenode");
+                    //    node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    //})
                 }
             );
         }
@@ -269,10 +269,10 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                    }),
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //}),
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
                 }
             );
@@ -285,10 +285,10 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new NonTerminalExpressionDefinition { Identifier = "Declaration" },
-                    new SemanticAction((ParsingNode node) =>
-                    {
-                        node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<SyntaxTreeNode>("Declaration", "syntaxtreenode");
-                    }),
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<SyntaxTreeNode>("Declaration", "syntaxtreenode");
+                    //}),
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
                 }
             );

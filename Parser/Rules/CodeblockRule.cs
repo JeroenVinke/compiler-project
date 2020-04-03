@@ -15,7 +15,7 @@ namespace Compiler.Parser.Rules
                     new List<ExpressionDefinition>
                     {
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketOpen },
-                        new SemanticAction((ParsingNode node) =>
+                        new SemanticActionDefinition((ParsingNode node) =>
                         {
                             var symbolTableNode = node.FirstParentWithAttribute("symtable");
 
@@ -29,9 +29,6 @@ namespace Compiler.Parser.Rules
                             }
                         }),
                         new NonTerminalExpressionDefinition { Identifier = "Statements" },
-                        new SemanticAction((ParsingNode node) => {
-                            node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<StatementsASTNode>("Statements", "syntaxtreenode"));
-                        }),
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketClose }
                     }
                 )

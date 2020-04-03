@@ -17,19 +17,15 @@ namespace Compiler.Parser.Rules
                     {
                         new TerminalExpressionDefinition { TokenType = TokenType.TypeDeclaration  },
                         new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
-                        new SemanticAction((ParsingNode node) =>
-                        {
-                            string type = node.GetAttributeForKey<WordToken>("TypeDeclaration", "token").Lexeme;
+                        //new SemanticAction((ParsingNode node) =>
+                        //{
+                        //    string type = node.GetAttributeForKey<WordToken>("TypeDeclaration", "token").Lexeme;
 
-                            SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
-                            string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
-                            SymbolTableEntryType symbolEntryType = SymbolTable.StringToSymbolTableEntryType(type);
-                            SymbolTableEntry entry = symbolTable.Create(key, symbolEntryType);
-
-                            DeclarationASTNode syntaxTreeNode = new DeclarationASTNode();
-                            syntaxTreeNode.SymbolTableEntry = entry;
-                            node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
-                        })
+                        //    SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
+                        //    string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
+                        //    SymbolTableEntryType symbolEntryType = SymbolTable.StringToSymbolTableEntryType(type);
+                        //    SymbolTableEntry entry = symbolTable.Create(key, symbolEntryType);
+                        //})
                     }
                 )
             ));

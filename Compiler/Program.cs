@@ -59,22 +59,13 @@ namespace Compiler
             lexLanguage.Add("([0-9])*#", (string value) => { return new WordToken { Type = TokenType.Integer }; });
             lexLanguage.Add(";#", (string value) => { return new WordToken { Type = TokenType.Semicolon }; });
 
-            string input = File.ReadAllText("./numexpr.txt");
+            string input = File.ReadAllText("./simple.txt");
 
             LexicalAnalyzer analyzer = new LexicalAnalyzer(lexLanguage, input);
 
-            Grammar grammar = new Grammar();
+            Grammar grammar = Grammar.Instance;
 
-            Parser.Parser parser = new Parser.Parser(analyzer, grammar);
-
-            CodeblockRule.Initialize(ref grammar);
-            StatementsRule.Initialize(ref grammar);
-            StatementRule.Initialize(ref grammar);
-            DeclarationRule.Initialize(ref grammar);
-            BooleanExpressionRule.Initialize(ref grammar);
-            BooleanRule.Initialize(ref grammar);
-            NumericExpressionRule.Initialize(ref grammar);
-            FactorRule.Initialize(ref grammar);
+            Parser.BottomUpParser parser = new Parser.BottomUpParser(analyzer, grammar);
 
             foreach (Production production in grammar)
             {
@@ -83,38 +74,38 @@ namespace Compiler
 
             parser.Parse();
 
-            Parser.SyntaxTreeNode ast = parser.ParentParsingTreeNode.GetAttribute<Parser.SyntaxTreeNode>("syntaxtreenode");
+            //Parser.SyntaxTreeNode ast = parser.ParentParsingTreeNode.GetAttribute<Parser.SyntaxTreeNode>("syntaxtreenode");
 
-            List<Instruction> instructions = new List<Instruction>();
-            ast.GenerateCode(instructions);
+            //List<Instruction> instructions = new List<Instruction>();
+            //ast.GenerateCode(instructions);
 
-            foreach(Instruction instruction in instructions)
-            {
-                string code = instruction.GenerateCodeString();
+            //foreach(Instruction instruction in instructions)
+            //{
+            //    string code = instruction.GenerateCodeString();
 
-                if (!string.IsNullOrEmpty(code))
-                {
-                    Console.WriteLine(code);
-                }
-            }
+            //    if (!string.IsNullOrEmpty(code))
+            //    {
+            //        Console.WriteLine(code);
+            //    }
+            //}
 
-            string result = "";
-            result += "digraph A {\r\n";
-            result += "subgraph cluster_2 {\r\n";
-            result += "label=\"Parser tree\";\r\n";
-            result += parser.ParentParsingTreeNode.ToDot();
-            result += "}\r\n";
-            result += "subgraph cluster_3 {\r\n";
-            result += "label=\"Syntax tree\";\r\n";
-            result += ast.ToDot();
-            result += "}\r\n";
-            result += "subgraph cluster_4 {\r\n";
-            result += "label=\"Symbol table\";\r\n";
-            result += parser.RootSymbolTable.ToDot();
-            result += "}\r\n";
-            result += "}\r\n";
+            //string result = "";
+            //result += "digraph A {\r\n";
+            //result += "subgraph cluster_2 {\r\n";
+            //result += "label=\"Parser tree\";\r\n";
+            //result += parser.ParentParsingTreeNode.ToDot();
+            //result += "}\r\n";
+            //result += "subgraph cluster_3 {\r\n";
+            //result += "label=\"Syntax tree\";\r\n";
+            //result += ast.ToDot();
+            //result += "}\r\n";
+            //result += "subgraph cluster_4 {\r\n";
+            //result += "label=\"Symbol table\";\r\n";
+            //result += parser.RootSymbolTable.ToDot();
+            //result += "}\r\n";
+            //result += "}\r\n";
 
-            File.WriteAllText("output.txt", result);
+            //File.WriteAllText("output.txt", result);
         }
     }
 }
