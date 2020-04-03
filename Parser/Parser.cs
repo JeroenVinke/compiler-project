@@ -74,7 +74,9 @@ namespace Compiler.Parser
                 }
                 else if (Stack.First().Expression is NonTerminalExpression nte)
                 {
-                    SubProduction subProduction = ParsingTable.First(x => x.Dimension1 == nte.Identifier && x.Dimension2.TokenType == Current.Type).SubProduction;
+                    List<ParsingTableEntry> entries = ParsingTable.Where(x => x.Dimension1 == nte.Identifier && x.Dimension2.TokenType == Current.Type);
+
+                    SubProduction subProduction = entries.First().SubProduction;
                     nte.Tree.SubProduction = subProduction;
 
                     Stack.RemoveAt(0);

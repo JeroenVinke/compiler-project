@@ -21,7 +21,7 @@ namespace Compiler.Parser
 
         public override string ToString()
         {
-            return Identifier + " -> " + string.Join(" | ", this.Select(x => x.ToString()));
+            return Identifier + " -> " + string.Join("\r\n\t\t | ", this.Select(x => x.ToString()));
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Compiler
             lexLanguage.Add("\\*#", (string value) => { return new WordToken { Type = TokenType.Multiplication }; });
             lexLanguage.Add("\\/#", (string value) => { return new WordToken { Type = TokenType.Division }; });
             lexLanguage.Add("if#", (string value) => { return new WordToken { Type = TokenType.If }; });
+            lexLanguage.Add("else#", (string value) => { return new WordToken { Type = TokenType.Else }; });
             lexLanguage.Add("while#", (string value) => { return new WordToken { Type = TokenType.While }; });
             lexLanguage.Add("(true|false)#", (string value) => { return new WordToken { Type = TokenType.Boolean }; });
             lexLanguage.Add("(string|int|void)#", (string value) => { return new WordToken { Type = TokenType.TypeDeclaration }; });
