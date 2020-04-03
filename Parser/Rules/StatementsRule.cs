@@ -20,11 +20,11 @@ namespace Compiler.Parser.Rules
                     new List<ExpressionDefinition>
                     {
                         new NonTerminalExpressionDefinition { Identifier = "Statement" },
-                        new SemanticAction((ParsingNode node) =>
+                        new SemanticActionDefinition((ParsingNode node) =>
                         {
                         }),
                         new NonTerminalExpressionDefinition { Identifier = "Statements`" },
-                        new SemanticAction((ParsingNode node) =>
+                        new SemanticActionDefinition((ParsingNode node) =>
                         {
                             StatementsASTNode astNode = new StatementsASTNode();
                             astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
@@ -47,7 +47,7 @@ namespace Compiler.Parser.Rules
                         {
                             new NonTerminalExpressionDefinition { Identifier = "Statement" },
                             new NonTerminalExpressionDefinition { Identifier = "Statements`" },
-                            new SemanticAction((ParsingNode node) =>
+                            new SemanticActionDefinition((ParsingNode node) =>
                             {
                                 List<StatementASTNode> syntaxTreeNodes = new List<StatementASTNode>();
                                 syntaxTreeNodes.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
@@ -62,7 +62,7 @@ namespace Compiler.Parser.Rules
                         new List<ExpressionDefinition>
                         {
                             new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
-                            new SemanticAction((ParsingNode node) => {
+                            new SemanticActionDefinition((ParsingNode node) => {
                                 List<StatementASTNode> syntaxTreeNodes = new List<StatementASTNode>();
                                 node.Attributes.Add("syntaxtreenodes", syntaxTreeNodes);
                             })

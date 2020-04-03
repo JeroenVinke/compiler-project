@@ -31,13 +31,13 @@ namespace Compiler.Parser
         {
             ExpressionSet result = new ExpressionSet();
 
-            foreach (Production production in Parser.Grammar)
+            foreach (Production production in Grammar.Instance)
             {
                 foreach (SubProduction subProduction in production)
                 {
                     bool found = false;
 
-                    foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticAction)))
+                    foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticActionDefinition)))
                     {
                         if (expression is NonTerminalExpressionDefinition ne && ne.Identifier == Identifier)
                         {
@@ -81,7 +81,7 @@ namespace Compiler.Parser
         {
             ExpressionSet result = new ExpressionSet();
 
-            if (Parser.Grammar.Any(x => x.Identifier == Identifier
+            if (Grammar.Instance.Any(x => x.Identifier == Identifier
                 && x.Any(y => y.Count == 1
                 && y.First() is TerminalExpressionDefinition te
                 && te.TokenType == TokenType.EmptyString)))
@@ -89,11 +89,11 @@ namespace Compiler.Parser
                 result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EmptyString });
             }
 
-            foreach (SubProduction subProduction in Parser.Grammar.First(x => x.Identifier == Identifier))
+            foreach (SubProduction subProduction in Grammar.Instance.First(x => x.Identifier == Identifier))
             {
                 bool canContinue = true;
 
-                foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticAction)))
+                foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticActionDefinition)))
                 {
                     if (canContinue)
                     {

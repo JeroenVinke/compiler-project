@@ -23,7 +23,7 @@ namespace Compiler.Parser
             {
                 foreach (SubProduction subProduction in production)
                 {
-                    ExpressionSet set = subProduction.First(x => !(x is SemanticAction)).First();
+                    ExpressionSet set = subProduction.First(x => !(x is SemanticActionDefinition)).First();
 
                     foreach (TerminalExpressionDefinition terminalExpression in set)
                     {

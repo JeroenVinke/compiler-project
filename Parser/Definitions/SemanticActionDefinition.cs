@@ -3,11 +3,11 @@ using System;
 
 namespace Compiler.Parser
 {
-    public class SemanticAction : ExpressionDefinition
+    public class SemanticActionDefinition : ExpressionDefinition
     {
         public Action<ParsingNode> Action { get; set; }
 
-        public SemanticAction(Action<ParsingNode> action)
+        public SemanticActionDefinition(Action<ParsingNode> action)
         {
             Action = action;
         }

@@ -51,7 +51,7 @@ namespace Compiler.Parser
 
             foreach(ExpressionDefinition expressionDefinition in SubProduction)
             {
-                if (expressionDefinition is SemanticAction sa)
+                if (expressionDefinition is SemanticActionDefinition sa)
                 {
                     sa.Action(this);
                 }
