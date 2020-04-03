@@ -38,3 +38,4 @@ t8 = 20
 s0 = t8
 ```
 
+![img](https://cdn.jsdelivr.net/gh/JeroenVinke/compiler-project/datastructure.svg)
