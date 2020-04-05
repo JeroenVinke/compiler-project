@@ -17,16 +17,16 @@ namespace Compiler.Parser.Rules
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketOpen },
                         new SemanticActionDefinition((ParsingNode node) =>
                         {
-                            var symbolTableNode = node.FirstParentWithAttribute("symtable");
+                            //var symbolTableNode = node.FirstParentWithAttribute("symtable");
 
-                            if (symbolTableNode == null)
-                            {
-                                node.Attributes["symtable"] = node.Parser.RootSymbolTable;
-                            }
-                            else
-                            {
-                                node.Attributes["symtable"] = symbolTableNode.GetAttribute<SymbolTable>("symtable").CreateChild();
-                            }
+                            //if (symbolTableNode == null)
+                            //{
+                            //    node.Attributes["symtable"] = node.Parser.RootSymbolTable;
+                            //}
+                            //else
+                            //{
+                            //    node.Attributes["symtable"] = symbolTableNode.GetAttribute<SymbolTable>("symtable").CreateChild();
+                            //}
                         }),
                         new NonTerminalExpressionDefinition { Identifier = "Statements" },
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketClose }

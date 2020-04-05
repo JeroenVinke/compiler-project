@@ -1,4 +1,4 @@
-﻿using Compiler.Common;
+﻿using Compiler.Parser.Instances;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,71 +6,67 @@ namespace Compiler.Parser
 {
     public class ParsingTable : List<ParsingTableEntry>
     {
-        public ParsingTable(IEnumerable<ParsingTableEntry> collection) : base(collection)
+        public string ToDot(List<ItemSet> states, List<ExpressionDefinition> symbols)
         {
-        }
+            string result = "1111 [shape=plaintext,label=<<table>";
 
-        public static ParsingTable Create(List<Production> grammar)
-        {
-            return new ParsingTable(CreateParsingTable(grammar));
-        }
-
-        private static List<ParsingTableEntry> CreateParsingTable(List<Production> grammar)
-        {
-            List<ParsingTableEntry> entries = new List<ParsingTableEntry>();
-
-            foreach (Production production in grammar)
+            result += "<tr><td></td>";
+            foreach (ExpressionDefinition symbol in symbols.Where(x => x is TerminalExpressionDefinition))
             {
-                foreach (SubProduction subProduction in production)
+                result += $"<td>{symbol.Key}</td>";
+            }
+            result += $"<td></td>";
+            foreach (NonTerminalExpressionDefinition symbol in symbols.Where(x => x is NonTerminalExpressionDefinition))
+            {
+                result += $"<td>{symbol.Key}</td>";
+            }
+            result += "</tr>";
+
+            foreach (ItemSet set in states)
+            {
+                string row = $"<tr><td>{set.Id}</td>";
+
+                foreach (ExpressionDefinition definition in symbols.Where(x => x is TerminalExpressionDefinition))
                 {
-                    ExpressionSet set = subProduction.First(x => !(x is SemanticActionDefinition)).First();
+                    var action = this.FirstOrDefault(x => x is ActionParsingTableEntry  a
+                        && a.ItemSet == set 
+                        && a.ExpressionDefinition.IsEqualTo(definition));
 
-                    foreach (TerminalExpressionDefinition terminalExpression in set)
+                    if(action != null)
                     {
-                        AddParsingTableEntry(entries, new ParsingTableEntry
-                        {
-                            Dimension1 = production.Identifier,
-                            Dimension2 = terminalExpression,
-                            SubProduction = subProduction
-                        });
+                        row += $"<td>{action.ShortDescription()}</td>";
                     }
-
-                    if (set.Any(x => x.TokenType == TokenType.EmptyString))
+                    else
                     {
-                        ExpressionSet f = new NonTerminalExpressionDefinition { Identifier = production.Identifier }.Follow();
-
-                        foreach (TerminalExpressionDefinition nte in f)
-                        {
-                            AddParsingTableEntry(entries, new ParsingTableEntry
-                            {
-                                Dimension1 = production.Identifier,
-                                Dimension2 = nte,
-                                SubProduction = subProduction
-                            });
-                        }
-
-                        if (f.Any(x => x.TokenType == TokenType.EndMarker))
-                        {
-                            AddParsingTableEntry(entries, new ParsingTableEntry
-                            {
-                                Dimension1 = production.Identifier,
-                                Dimension2 = f.First(x => x.TokenType == TokenType.EndMarker),
-                                SubProduction = subProduction
-                            });
-                        }
+                        row += $"<td></td>";
                     }
                 }
+
+                row += $"<td></td>";
+
+                foreach (NonTerminalExpressionDefinition definition in symbols.Where(x => x is NonTerminalExpressionDefinition))
+                {
+                    var @goto = this.FirstOrDefault(x => x is GotoParsingTableEntry a
+                        && a.ItemSet == set
+                        && a.ExpressionDefinition.IsEqualTo(definition));
+
+                    if (@goto != null)
+                    {
+                        row += $"<td>{@goto.ShortDescription()}</td>";
+                    }
+                    else
+                    {
+                        row += $"<td></td>";
+                    }
+                }
+
+                row += "</tr>";
+                result += row;
             }
 
-            return entries;
-        }
+            result += "</table>>]\r\n";
 
-        private static void AddParsingTableEntry(List<ParsingTableEntry> entries, ParsingTableEntry parsingTableEntry)
-        {
-            if (!entries.Any(x => x.Dimension1 == parsingTableEntry.Dimension1 && x.Dimension2.TokenType == parsingTableEntry.Dimension2.TokenType && x.SubProduction == parsingTableEntry.SubProduction))
-            {
-                entries.Add(parsingTableEntry);
-            }
+            return result;
         }
     }
 }

@@ -16,5 +16,10 @@ namespace Compiler.Parser
         {
             return null;
         }
+
+        public override bool IsEqualTo(ExpressionDefinition definition)
+        {
+            return true;
+        }
     }
 }

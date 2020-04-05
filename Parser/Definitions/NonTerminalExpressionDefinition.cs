@@ -1,4 +1,5 @@
 ﻿using Compiler.Common;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Compiler.Parser
@@ -44,7 +45,6 @@ namespace Compiler.Parser
                             found = true;
                         }
                         else
-
                         {
                             if (found)
                             {
@@ -65,13 +65,13 @@ namespace Compiler.Parser
                     {
                         result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = production.Identifier }.GetFollow());
                     }
-
-                    // when last
-                    if (found && production.Identifier == Identifier)
-                    {
-                        result.AddRangeUnique(new ExpressionSet { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
-                    }
                 }
+            }
+
+            // when last
+            if (Identifier == "Initial")
+            {
+                result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EndMarker });
             }
 
             return result;
@@ -112,6 +112,16 @@ namespace Compiler.Parser
         public override string ToString()
         {
             return Identifier;
+        }
+
+        public override bool IsEqualTo(ExpressionDefinition definition)
+        {
+            if (definition is NonTerminalExpressionDefinition nte)
+            {
+                return Identifier == nte.Identifier;
+            }
+
+            return false;
         }
     }
 }

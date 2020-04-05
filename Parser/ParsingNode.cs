@@ -9,7 +9,7 @@ namespace Compiler.Parser
 
         private Expression expression;
         private ParsingNode parent;
-        public Parser Parser { get; set; }
+        //public Parser Parser { get; set; }
         public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         private int Id { get; set; }

@@ -1,30 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Compiler.Parser.Instances
 {
-    public class Item : List<Expression>
+    public class Item : List<ExpressionDefinition>
     {
         public SubProduction SubProduction { get; set; }
 
-        private Expression _expressionAfterDot;
-        public Expression ExpressionAfterDot
-        { 
-            get
-            {
-                if (_expressionAfterDot == null)
-                {
-                    _expressionAfterDot = this[0];
-                }
+        public int DotIndex { get; set; } = 0;
+        public ExpressionDefinition ExpressionAfterDot => Count > DotIndex ? this[DotIndex] : null;
 
-                return _expressionAfterDot;
-            }
-            set
-            {
-                _expressionAfterDot = value;
-            }
-        }
-
-        public Item(List<Expression> expressions) : base(expressions)
+        public Item(List<ExpressionDefinition> expressions) : base(expressions)
         {
         }
 
@@ -34,40 +21,93 @@ namespace Compiler.Parser.Instances
 
             foreach(ExpressionDefinition expressionDefinition in subProduction)
             {
-                if (expressionDefinition is NonTerminalExpressionDefinition nte)
-                {
-                    Add(new NonTerminalExpression
-                    {
-                        Key = nte.Key,
-                        Identifier = nte.Identifier
-                    });
-                }
-                else if (expressionDefinition is TerminalExpressionDefinition te)
-                {
-                    Add(new TerminalExpression
-                    {
-                        Key = te.Key,
-                        TokenType = te.TokenType
-                    });
-                }
+                Add(expressionDefinition);
             }
         }
 
         public void Next()
         {
-            int nextIndex = IndexOf(ExpressionAfterDot) + 1;
+            DotIndex++;
+        }
 
-            if (Count > nextIndex + 1)
+        public ItemSet Closure()
+        {
+            ItemSet set = new ItemSet();
+            set.Add(Clone());
+
+            if (ExpressionAfterDot is NonTerminalExpressionDefinition a)
             {
-                ExpressionAfterDot = this[nextIndex];
+                foreach (Production production in Grammar.Instance)
+                {
+                    if (production.Identifier == a.Identifier)
+                    {
+                        foreach (SubProduction subProduction in production)
+                        {
+                            if (!set.Any(x => x.SubProduction == subProduction))
+                            {
+                                set.AddRange(new Item(subProduction).Closure());
+                            }
+                        }
+                    }
+                }
             }
+
+            return set;
+        }
+
+        internal bool IsEqualTo(Item x)
+        {
+            if (x.Count != Count)
+            {
+                return false;
+            }
+
+            if (x.DotIndex != DotIndex)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Count; i++)
+            {
+                if (x[i].SubProduction.Production.Identifier != this[i].SubProduction.Production.Identifier)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public Item Clone()
         {
             Item item = new Item(SubProduction);
-            item.ExpressionAfterDot = ExpressionAfterDot;
+            item.DotIndex = DotIndex;
             return item;
+        }
+
+        public string ToDot()
+        {
+            string result = $"{SubProduction.Production.Identifier} -> ";
+
+            int i = 0;
+            foreach(ExpressionDefinition expressionDefinition in this)
+            {
+                if (i == DotIndex)
+                {
+                    result += " DOT";
+                }
+
+                result += $" {expressionDefinition.ToString()} ";
+
+                i++;
+            }
+
+            if (DotIndex >= Count)
+            {
+                result += "DOT";
+            }
+
+            return result;
         }
     }
 }

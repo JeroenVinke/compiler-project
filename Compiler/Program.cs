@@ -63,14 +63,7 @@ namespace Compiler
 
             LexicalAnalyzer analyzer = new LexicalAnalyzer(lexLanguage, input);
 
-            Grammar grammar = Grammar.Instance;
-
-            Parser.BottomUpParser parser = new Parser.BottomUpParser(analyzer, grammar);
-
-            foreach (Production production in grammar)
-            {
-                Console.WriteLine(production.ToString());
-            }
+            Parser.BottomUpParser parser = new Parser.BottomUpParser(analyzer);
 
             parser.Parse();
 

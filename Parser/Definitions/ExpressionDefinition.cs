@@ -7,5 +7,7 @@ namespace Compiler.Parser
         public abstract ExpressionSet First();
         public SubProduction SubProduction { get; set; }
         public string Key { get; set; }
+
+        public abstract bool IsEqualTo(ExpressionDefinition definition);
     }
 }
