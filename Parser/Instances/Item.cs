@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Compiler.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,17 +10,19 @@ namespace Compiler.Parser.Instances
         public SubProduction SubProduction { get; set; }
 
         public int DotIndex { get; set; } = 0;
+        public TerminalExpressionDefinition Lookahead { get; set; }
         public ExpressionDefinition ExpressionAfterDot => Count > DotIndex ? this[DotIndex] : null;
 
         public Item(List<ExpressionDefinition> expressions) : base(expressions)
         {
         }
 
-        public Item(SubProduction subProduction)
+        public Item(SubProduction subProduction, TerminalExpressionDefinition lookahead = null)
         {
             SubProduction = subProduction;
+            Lookahead = lookahead;
 
-            foreach(ExpressionDefinition expressionDefinition in subProduction)
+            foreach (ExpressionDefinition expressionDefinition in subProduction)
             {
                 Add(expressionDefinition);
             }
@@ -43,9 +46,19 @@ namespace Compiler.Parser.Instances
                     {
                         foreach (SubProduction subProduction in production)
                         {
-                            if (!set.Any(x => x.SubProduction == subProduction))
+                            List<ExpressionDefinition> tail = this.Skip(DotIndex).ToList();
+
+                            if (Lookahead != null)
                             {
-                                set.AddRange(new Item(subProduction).Closure());
+                                tail.Add(Lookahead);
+                            }
+
+                            foreach (TerminalExpressionDefinition ted in First(tail))
+                            {
+                                if (!set.Any(x => x.SubProduction == subProduction))
+                                {
+                                    set.AddRange(new Item(subProduction, ted).Closure());
+                                }
                             }
                         }
                     }
@@ -53,6 +66,33 @@ namespace Compiler.Parser.Instances
             }
 
             return set;
+        }
+
+        public ExpressionSet First(List<ExpressionDefinition> expressionDefinitions)
+        {
+            ExpressionSet result = new ExpressionSet();
+
+            bool previousCanBeEmpty = true;
+            foreach (ExpressionDefinition expressionDefinition in expressionDefinitions)
+            {
+                if (previousCanBeEmpty)
+                {
+                    ExpressionSet first = expressionDefinition.First();
+                    result.AddRange(first.Where(x => x.TokenType != TokenType.EmptyString));
+
+                    if (!first.Any(x => x.TokenType == TokenType.EmptyString))
+                    {
+                        previousCanBeEmpty = false;
+                    }
+                }
+            }
+
+            if (previousCanBeEmpty)
+            {
+                result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EmptyString });
+            }
+
+            return result;
         }
 
         internal bool IsEqualTo(Item x)
@@ -80,7 +120,7 @@ namespace Compiler.Parser.Instances
 
         public Item Clone()
         {
-            Item item = new Item(SubProduction);
+            Item item = new Item(SubProduction, Lookahead);
             item.DotIndex = DotIndex;
             return item;
         }

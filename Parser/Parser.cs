@@ -36,7 +36,7 @@ namespace Compiler.Parser
             SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == "Initial").First();
             List<ExpressionDefinition> symbols = Grammar.Instance.Symbols();
 
-            ItemSet initial = new ItemSet(new List<Item> { new Item(startingRule) }).Closure();
+            ItemSet initial = new ItemSet(new List<Item> { new Item(startingRule, new TerminalExpressionDefinition { TokenType = TokenType.EndMarker }) }).Closure();
             List<ItemSet> C = GetCanonicalSets(initial, symbols);
             ParsingTable parsingTable = GetParsingTable(C, symbols);
 
