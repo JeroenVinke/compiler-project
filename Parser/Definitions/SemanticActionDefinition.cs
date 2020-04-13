@@ -17,6 +17,11 @@ namespace Compiler.Parser
             return null;
         }
 
+        public override string ToString()
+        {
+            return "Action";
+        }
+
         public override bool IsEqualTo(ExpressionDefinition definition)
         {
             return true;

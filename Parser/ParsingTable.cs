@@ -1,4 +1,6 @@
-﻿using Compiler.Parser.Instances;
+﻿using Compiler.Common;
+using Compiler.Parser.Instances;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +8,80 @@ namespace Compiler.Parser
 {
     public class ParsingTable : List<ParsingTableEntry>
     {
+        public static ParsingTable Create(List<ItemSet> C,
+            List<ExpressionDefinition> symbols,
+            Func<ItemSet, ExpressionDefinition, bool> shift,
+            Func<ItemSet, ExpressionDefinition, bool> accept,
+            Func<ItemSet, ExpressionDefinition, SubProduction, bool> reduce)
+        {
+            ParsingTable parsingTable = new ParsingTable();
+
+            // Actions
+            foreach (ItemSet set in C)
+            {
+                foreach (Item item in set)
+                {
+                    if (item.ExpressionAfterDot != null
+                        && item.ExpressionAfterDot is TerminalExpressionDefinition ted)
+                    {
+                        parsingTable.Add(new ActionParsingTableEntry
+                        {
+                            ItemSet = set,
+                            ExpressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition,
+                            ActionDescription = "s",
+                            Action = shift
+                        });
+                    }
+                    else if (item.SubProduction.Production.Identifier == "Initial")
+                    {
+                        TerminalExpressionDefinition expressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition;
+                        expressionDefinition = expressionDefinition ?? new TerminalExpressionDefinition() { TokenType = TokenType.EndMarker };
+                        parsingTable.Add(new ActionParsingTableEntry
+                        {
+                            ItemSet = set,
+                            ExpressionDefinition = expressionDefinition,
+                            ActionDescription = "a",
+                            Action = accept
+                        });
+                    }
+                    else if (item.IsDotIndexAtEnd())
+                    {
+                        string identifier = item.SubProduction.Production.Identifier;
+                        foreach (TerminalExpressionDefinition ted1 in new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow())
+                        {
+                            parsingTable.Add(new ActionParsingTableEntry
+                            {
+                                ItemSet = set,
+                                ExpressionDefinition = ted1,
+                                ActionDescription = "r",
+                                Action = (ItemSet arg1, ExpressionDefinition arg3) =>
+                                    reduce(arg1, arg3, item.SubProduction)
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Goto's
+            foreach (ItemSet set in C)
+            {
+                foreach (NonTerminalExpressionDefinition symbol in symbols.Where(x => x is NonTerminalExpressionDefinition))
+                {
+                    if (set.Transitions.Any(x => x.Key.IsEqualTo(symbol)))
+                    {
+                        parsingTable.Add(new GotoParsingTableEntry
+                        {
+                            ExpressionDefinition = symbol,
+                            ItemSet = set,
+                            Destination = set.Transitions[symbol]
+                        });
+                    }
+                }
+            }
+
+            return parsingTable;
+        }
+
         public string ToDot(List<ItemSet> states, List<ExpressionDefinition> symbols)
         {
             string result = "1111 [shape=plaintext,label=<<table>";

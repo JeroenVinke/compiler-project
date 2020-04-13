@@ -27,6 +27,7 @@
         And,
         RelOp,
         If,
-        Else
+        Else,
+        Hash
     }
 }

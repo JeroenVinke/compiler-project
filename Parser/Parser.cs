@@ -15,7 +15,8 @@ namespace Compiler.Parser
         public SymbolTable RootSymbolTable { get; set; } = new SymbolTable();
 
         private List<ItemSet> Stack = new List<ItemSet>();
-        public List<ExpressionDefinition> Symbols { get; set; } = new List<ExpressionDefinition>();
+        private ParsingTable ParsingTable { get; set; }
+        public List<ExpressionDefinition> Symbols { get; private set; }
 
         public BottomUpParser(LexicalAnalyzer lexicalAnalyzer)
         {
@@ -34,33 +35,37 @@ namespace Compiler.Parser
             Console.WriteLine("------ end of grammar ------");
 
             SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == "Initial").First();
-            List<ExpressionDefinition> symbols = Grammar.Instance.Symbols();
+            Symbols = Grammar.Instance.Symbols();
 
-            ItemSet initial = new ItemSet(new List<Item> { new Item(startingRule, new TerminalExpressionDefinition { TokenType = TokenType.EndMarker }) }).Closure();
-            List<ItemSet> C = GetCanonicalSets(initial, symbols);
-            ParsingTable parsingTable = GetParsingTable(C, symbols);
+            Item startingItem = new Item(startingRule, new List<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
+            ItemSet initial = new ItemSet(new List<Item> { startingItem }).Closure();
+            List<ItemSet> C = initial.GetCanonicalSets(Symbols);
+            PropogateLookaheads(Symbols, C);
+
+            ParsingTable = ParsingTable.Create(C, Symbols, Shift, Accept, Reduce);
 
             Stack.Add(initial);
 
             string result = "";
             result += "digraph A {\r\n";
-            result += "subgraph cluster_2 {\r\n";
-            result += "label=\"Automaton\";\r\n";
             result += Dotify(C.First());
             result += "}\r\n";
-            result += "subgraph cluster_3 {\r\n";
-            result += "label=\"Parsing table\";\r\n";
-            result += parsingTable.ToDot(C, symbols);
-            result += "}\r\n";
+            result += "digraph B {\r\n";
+            result += ParsingTable.ToDot(C, Symbols);
             result += "}\r\n";
 
             Console.WriteLine(result);
 
             File.WriteAllText("output.txt", result);
 
+            DoParse();
+        }
+
+        private void DoParse()
+        {
             while (true)
             {
-                ActionParsingTableEntry entry = parsingTable.FirstOrDefault(x => x is ActionParsingTableEntry a
+                ActionParsingTableEntry entry = ParsingTable.FirstOrDefault(x => x is ActionParsingTableEntry a
                     && a.ItemSet == Stack.Last()
                     && a.ExpressionDefinition.TokenType == Current.Type) as ActionParsingTableEntry;
 
@@ -78,119 +83,94 @@ namespace Compiler.Parser
             }
         }
 
-        private ParsingTable GetParsingTable(List<ItemSet> C, List<ExpressionDefinition> symbols)
+        private void PropogateLookaheads(List<ExpressionDefinition> symbols, List<ItemSet> C)
         {
-            ParsingTable parsingTable = new ParsingTable();
+            List<LookaheadPropogation> propogations = new List<LookaheadPropogation>();
 
-            // Actions
             foreach (ItemSet set in C)
             {
-                foreach (Item item in set)
+                foreach (ExpressionDefinition ted in symbols)
                 {
-                    if (item.ExpressionAfterDot != null
-                        && item.ExpressionAfterDot is TerminalExpressionDefinition ted)
+                    propogations.AddRange(DetermineLookaheads(set, ted));
+                }
+            }
+
+            bool addedLookahead = true;
+            while (addedLookahead)
+            {
+                addedLookahead = false;
+                foreach (ItemSet set in C)
+                {
+                    foreach (Item item in set.KernelItems())
                     {
-                        parsingTable.Add(new ActionParsingTableEntry
+                        LookaheadPropogation propogation = propogations.FirstOrDefault(x => x.ToSet == set && x.ToItem.IsEqualTo(item));
+                        if (propogation != null)
                         {
-                            ItemSet = set,
-                            ExpressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition,
-                            ActionDescription = "s",
-                            Action = Shift
-                        });
-                    }
-                    else if (item.SubProduction.Production.Identifier == "Initial")
-                    {
-                        TerminalExpressionDefinition expressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition;
-                        expressionDefinition = expressionDefinition ?? new TerminalExpressionDefinition() { TokenType = TokenType.EndMarker };
-                        parsingTable.Add(new ActionParsingTableEntry
-                        {
-                            ItemSet = set,
-                            ExpressionDefinition = expressionDefinition,
-                            ActionDescription = "a",
-                            Action = Accept
-                        });
-                    }
-                    else if (item.DotIndex == item.Count)
-                    {
-                        string identifier = item.SubProduction.Production.Identifier;
-                        foreach (TerminalExpressionDefinition ted1 in new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow())
-                        {
-                            parsingTable.Add(new ActionParsingTableEntry
+                            List<TerminalExpressionDefinition> lookaheads = propogation.FromItem.Lookahead.Except(item.Lookahead).ToList();
+
+                            if (lookaheads.Count > 0)
                             {
-                                ItemSet = set,
-                                ExpressionDefinition = ted1,
-                                ActionDescription = "r",
-                                Action = (ItemSet arg1, ExpressionDefinition arg3) =>
-                                    Reduce(arg1, arg3,item.SubProduction)
+                                addedLookahead = true;
+                                item.Lookahead.AddRange(lookaheads);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private List<LookaheadPropogation> DetermineLookaheads(ItemSet k, ExpressionDefinition x)
+        {
+            List<LookaheadPropogation> result = new List<LookaheadPropogation>();
+
+            if (!k.Transitions.Keys.Contains(x))
+            {
+                return result;
+            }
+
+            foreach (Item item in k.KernelItems())
+            {
+                ItemSet j = new ItemSet(
+                    new List<Item>()
+                    {
+                        new Item(item.SubProduction,
+                            new List<TerminalExpressionDefinition>() {
+                                new TerminalExpressionDefinition {
+                                    TokenType = TokenType.Hash
+                                }
+                            }
+                        )
+                    }
+                );
+
+                foreach (Item closureItem in j.KernelItems())
+                {
+                    if (closureItem.ExpressionAfterDot != null
+                        && closureItem.ExpressionAfterDot.IsEqualTo(x))
+                    {
+                        Item i = k.Transitions[x].First(xx => xx.IsEqualTo(closureItem, true));
+
+                        if (!closureItem.Lookahead.Any(y => y.TokenType == TokenType.Hash))
+                        {
+                            i.Lookahead.AddRange(closureItem.Lookahead.Except(i.Lookahead));
+                        }
+                        else
+                        {
+                            result.Add(new LookaheadPropogation
+                            {
+                                FromItem = item,
+                                FromSet = k,
+                                ToSet = k.Transitions[x],
+                                ToItem = i
                             });
                         }
                     }
                 }
             }
 
-            // Goto's
-            foreach (ItemSet set in C)
-            {
-                foreach (NonTerminalExpressionDefinition symbol in symbols.Where(x => x is NonTerminalExpressionDefinition))
-                {
-                    if (set.Transitions.ContainsKey(symbol))
-                    {
-                        parsingTable.Add(new GotoParsingTableEntry
-                        {
-                            ExpressionDefinition = symbol,
-                            ItemSet = set,
-                            Destination = set.Transitions[symbol]
-                        });
-                    }
-                }
-            }
-
-            return parsingTable;
+            return result;
         }
-
-        private static List<ItemSet> GetCanonicalSets(ItemSet initial, List<ExpressionDefinition> symbols)
-        {
-            List<ItemSet> C = new List<ItemSet>();
-            C.Add(initial);
-            while (true)
-            {
-                List<ItemSet> setsToAdd = new List<ItemSet>();
-                foreach (ItemSet set in C)
-                {
-                    foreach (ExpressionDefinition symbol in symbols)
-                    {
-                        ItemSet _goto = set.Goto(symbol);
-
-                        if (_goto.Count > 0)
-                        {
-                            ItemSet _existingGoto = C.FirstOrDefault(x => x.IsEqualTo(_goto));
-                            if (_existingGoto == null)
-                            {
-                                setsToAdd.Add(_goto);
-                                _existingGoto = _goto;
-                            }
-
-                            if (!set.Transitions.ContainsKey(symbol))
-                            {
-                                set.Transitions.Add(symbol, _existingGoto);
-                            }
-                        }
-                    }
-                }
-
-                if (setsToAdd.Count == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    C.AddRange(setsToAdd);
-                }
-            }
-
-            return C;
-        }
-
+        
         private void Error()
         {
             // error recovery routine
@@ -203,17 +183,20 @@ namespace Compiler.Parser
                 Identifier = subProduction.Production.Identifier
             };
 
+            Console.WriteLine("REDUCE " + subProduction.Production.Identifier);
+
             ItemSet tos = Stack.Last();
-            for(int i = 0; i < subProduction.Count; i++)
+
+            for(int i = 0; i < subProduction.Where(x => !(x is SemanticActionDefinition) && !(x is TerminalExpressionDefinition ted && ted.TokenType == TokenType.EmptyString)).Count(); i++)
             {
                 Stack.RemoveAt(Stack.Count - 1);
                 tos = Stack.Last();
-                Symbols.RemoveAt(Symbols.Count - 1);
             }
             tos = Stack.Last();
-            Stack.Add(tos.GetGoto(target));
-
-            Symbols.Add(target);
+            GotoParsingTableEntry entry = (GotoParsingTableEntry)ParsingTable.First(x => x is GotoParsingTableEntry g
+                && g.ItemSet == tos
+                && g.ExpressionDefinition.IsEqualTo(target));
+            Stack.Add(entry.Destination);
 
             return true;
         }
@@ -225,9 +208,9 @@ namespace Compiler.Parser
 
         private bool Shift(ItemSet arg1, ExpressionDefinition arg3)
         {
-            Stack.Add(arg1.Transitions[arg3]);
+            Console.WriteLine("SHIFT " + arg3.ToString());
+            Stack.Add(arg1.Transitions.First(x => x.Key.IsEqualTo(arg3)).Value);
             Current = LexicalAnalyzer.GetNextToken();
-            Symbols.Add(arg3);
 
             return true;
         }

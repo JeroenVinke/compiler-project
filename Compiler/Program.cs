@@ -1,8 +1,5 @@
 ﻿using Compiler.Common;
 using Compiler.LexicalAnalyer;
-using Compiler.Parser;
-using Compiler.Parser.Common;
-using Compiler.Parser.Rules;
 using System;
 using System.Collections.Generic;
 using System.IO;

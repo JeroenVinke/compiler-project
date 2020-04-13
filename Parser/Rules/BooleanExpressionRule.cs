@@ -1,4 +1,5 @@
 ﻿using Compiler.Common;
+using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -10,10 +11,38 @@ namespace Compiler.Parser.Rules
             grammar.Add(new Production("BooleanExpression",
                 new List<SubProduction>
                 {
+                    BooleanRule(),
+                    AndRule(),
                     OrRule(),
-                    AndRule()
+                    EmptyRule(),
                 }
             ));
+        }
+
+        private static SubProduction EmptyRule()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
+                    //new SemanticAction((ParsingNode node) => {
+                    //    node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                    //    node.Attributes.Add("syn", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                    //})
+                }
+            );
+        }
+
+        private static SubProduction BooleanRule()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new NonTerminalExpressionDefinition { Identifier = "Boolean" }
+                }
+            );
         }
 
         private static SubProduction OrRule()

@@ -20,16 +20,16 @@ namespace Compiler.Parser
                     _instance.Add(new Production("Initial", new List<SubProduction> {
                         new SubProduction(new List<ExpressionDefinition>
                         {
-                            new NonTerminalExpressionDefinition { Identifier = "NumericExpression" }
+                            new NonTerminalExpressionDefinition { Identifier = "Codeblock" }
                         })
                     }));
 
-                    //CodeblockRule.Initialize(ref _instance);
-                    //StatementsRule.Initialize(ref _instance);
-                    //StatementRule.Initialize(ref _instance);
-                    //DeclarationRule.Initialize(ref _instance);
-                    //BooleanExpressionRule.Initialize(ref _instance);
-                    //BooleanRule.Initialize(ref _instance);
+                    CodeblockRule.Initialize(ref _instance);
+                    StatementsRule.Initialize(ref _instance);
+                    StatementRule.Initialize(ref _instance);
+                    DeclarationRule.Initialize(ref _instance);
+                    BooleanExpressionRule.Initialize(ref _instance);
+                    BooleanRule.Initialize(ref _instance);
                     NumericExpressionRule.Initialize(ref _instance);
                     FactorRule.Initialize(ref _instance);
                 }
@@ -46,7 +46,7 @@ namespace Compiler.Parser
             {
                 foreach(SubProduction subProduction in production)
                 {
-                    foreach(ExpressionDefinition expressionDefinition in subProduction)
+                    foreach(ExpressionDefinition expressionDefinition in subProduction.Where(x => !(x is SemanticActionDefinition)))
                     {
                         if (!result.Any(x => x.IsEqualTo(expressionDefinition)))
                         {

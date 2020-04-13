@@ -16,7 +16,7 @@ namespace Compiler.Parser.Rules
                     new List<ExpressionDefinition>
                     {
                         new TerminalExpressionDefinition { TokenType = TokenType.TypeDeclaration  },
-                        new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
+                        new TerminalExpressionDefinition { TokenType = TokenType.Identifier }
                         //new SemanticAction((ParsingNode node) =>
                         //{
                         //    string type = node.GetAttributeForKey<WordToken>("TypeDeclaration", "token").Lexeme;
@@ -28,7 +28,7 @@ namespace Compiler.Parser.Rules
                         //})
                     }
                 )
-            ));
+            ));;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Compiler.Common;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -28,30 +30,45 @@ namespace Compiler.Parser
             return result;
         }
 
-        private ExpressionSet GetFollow()
+        private ExpressionSet GetFollow(List<NonTerminalExpressionDefinition> visited = null)
         {
+            visited = visited ?? new List<NonTerminalExpressionDefinition>();
+
+            if (visited.Any(x => x.IsEqualTo(this)))
+            {
+                return new ExpressionSet();
+            }
+
+            visited.Add(this);
+
             ExpressionSet result = new ExpressionSet();
 
             foreach (Production production in Grammar.Instance)
             {
+                if (production.Identifier == Identifier)
+                {
+                    continue;
+                }
+
                 foreach (SubProduction subProduction in production)
                 {
                     bool found = false;
 
                     foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticActionDefinition)))
                     {
+
                         if (expression is NonTerminalExpressionDefinition ne && ne.Identifier == Identifier)
                         {
                             found = true;
                         }
-                        else
+                        else 
                         {
                             if (found)
                             {
                                 if (expression.First().Any(x => x.TokenType == TokenType.EmptyString)
-                                    && ((NonTerminalExpressionDefinition)expression).Identifier != production.Identifier)
+                                    && ((NonTerminalExpressionDefinition)expression).Identifier != Identifier)
                                 {
-                                    result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = production.Identifier }.GetFollow());
+                                    result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = production.Identifier }.GetFollow(visited));
                                 }
 
                                 result.AddRangeUnique(new ExpressionSet(expression.First().Where(x => x.TokenType != TokenType.EmptyString).ToList()));
@@ -61,9 +78,9 @@ namespace Compiler.Parser
                     }
 
                     // when last
-                    if (found && production.Identifier != Identifier)
+                    if (found)
                     {
-                        result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = production.Identifier }.GetFollow());
+                        result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = production.Identifier }.GetFollow(visited));
                     }
                 }
             }
@@ -95,6 +112,12 @@ namespace Compiler.Parser
 
                 foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticActionDefinition)))
                 {
+                    if (expression.IsEqualTo(this))
+                    {
+                        continue;
+                    }
+
+
                     if (canContinue)
                     {
                         ExpressionSet first = expression.First();

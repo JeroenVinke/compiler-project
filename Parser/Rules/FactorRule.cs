@@ -1,6 +1,4 @@
 ﻿using Compiler.Common;
-using Compiler.Parser.SyntaxTreeNodes;
-using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -18,10 +16,10 @@ namespace Compiler.Parser.Rules
             return new Production("Factor",
                 new List<SubProduction>
                 {
-                    //IdentifierRule(),
+                    IdentifierRule(),
                     IntegerRule(),
                     //ParenthesisRule(),
-                    //NumExpressionRule()
+                    NumExpressionRule()
                 }
             );
         }

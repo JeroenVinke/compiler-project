@@ -11,6 +11,7 @@ namespace Compiler.LexicalAnalyer
     {
         public Dictionary<string, Func<string, Token>> Language { get; set; }
         public string SourceText { get; private set; }
+        public List<Token> ReadTokens { get; set; } = new List<Token>();
 
         public LexicalAnalyzer(Dictionary<string, Func<string, Token>> language, string source)
         {
@@ -67,6 +68,7 @@ namespace Compiler.LexicalAnalyer
                         }
 
                         SourceText = SourceText.Substring(buffer.Length);
+                        ReadTokens.Add(token);
                         return token;
                     }
                     else
@@ -81,6 +83,7 @@ namespace Compiler.LexicalAnalyer
 
             if (SourceText.Length == 0)
             {
+                ReadTokens.Add(new EndOfFileToken());
                 return new EndOfFileToken();
             }
 

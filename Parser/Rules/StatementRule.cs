@@ -1,7 +1,5 @@
 ﻿using Compiler.Common;
-using Compiler.Parser.SyntaxTreeNodes;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace Compiler.Parser.Rules
 {
@@ -83,8 +81,9 @@ namespace Compiler.Parser.Rules
                     Declaration(),
                     Codeblock(),
                     Assignment(),
-                    While(),
-                    IfElseClosed()
+                    //While(),
+                    IfElseClosed(),
+                    //NumericExpression()
                 }
             ));
 
@@ -129,7 +128,7 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
-                    new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
+                    new NonTerminalExpressionDefinition { Identifier = "Statement" },
                     //new SemanticAction((ParsingNode node) =>
                     //{
                     //    IfASTNode syntaxTreeNode = new IfASTNode();
@@ -151,7 +150,7 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
-                    new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
+                    new NonTerminalExpressionDefinition { Identifier = "ClosedStatement" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Else },
                     new NonTerminalExpressionDefinition { Identifier = "OpenStatement" },
                     //new SemanticActionDefinition((ParsingNode node) =>
@@ -175,16 +174,16 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
-                    new NonTerminalExpressionDefinition { Identifier = "Codeblock" },
+                    new NonTerminalExpressionDefinition { Identifier = "ClosedStatement" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Else },
                     new NonTerminalExpressionDefinition { Identifier = "ClosedStatement" },
-                    new SemanticActionDefinition((ParsingNode node) =>
-                    {
-                        IfASTNode syntaxTreeNode = new IfASTNode();
-                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                        node.Attributes["syntaxtreenode"] = syntaxTreeNode;
-                    })
+                    //new SemanticActionDefinition((ParsingNode node) =>
+                    //{
+                    //    IfASTNode syntaxTreeNode = new IfASTNode();
+                    //    syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                    //    syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //    node.Attributes["syntaxtreenode"] = syntaxTreeNode;
+                    //})
                 }
             );
         }
@@ -249,8 +248,8 @@ namespace Compiler.Parser.Rules
                 {
                     new NonTerminalExpressionDefinition { Identifier = "Identifier" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Assignment },
-                    new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
-                    new TerminalExpressionDefinition { TokenType = TokenType.Semicolon },
+                    new NonTerminalExpressionDefinition { Identifier = "Factor" },
+                    new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
                     //new SemanticAction((ParsingNode node) =>
                     //{
                     //    AssignmentASTNode syntaxTreeNode = new AssignmentASTNode();
@@ -272,8 +271,23 @@ namespace Compiler.Parser.Rules
                     //new SemanticAction((ParsingNode node) =>
                     //{
                     //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
-                    //}),
+                    //})
+                }
+            );
+        }
+
+        private static SubProduction NumericExpression()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
+                    //new SemanticAction((ParsingNode node) =>
+                    //{
+                    //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<StatementsASTNode>("Codeblock", "syntaxtreenode");
+                    //})
                 }
             );
         }
@@ -285,11 +299,11 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new NonTerminalExpressionDefinition { Identifier = "Declaration" },
+                    new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
                     //new SemanticAction((ParsingNode node) =>
                     //{
                     //    node.Attributes["syntaxtreenode"] = node.GetAttributeForKey<SyntaxTreeNode>("Declaration", "syntaxtreenode");
                     //}),
-                    new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
                 }
             );
         }

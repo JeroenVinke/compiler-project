@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Compiler.Parser.Instances
@@ -9,8 +8,6 @@ namespace Compiler.Parser.Instances
         public static int MaxId { get; set; }
         public int Id { get; set; }
         public Dictionary<ExpressionDefinition, ItemSet> Transitions { get; set; } = new Dictionary<ExpressionDefinition, ItemSet>();
-
-        public Item InitialItem => this.First();
 
         public ItemSet() : this(new List<Item>())
         {
@@ -39,14 +36,76 @@ namespace Compiler.Parser.Instances
             return true;
         }
 
+        public List<ItemSet> GetCanonicalSets(List<ExpressionDefinition> symbols)
+        {
+            List<ItemSet> C = new List<ItemSet>();
+            C.Add(this);
+            while (true)
+            {
+                List<ItemSet> setsToAdd = new List<ItemSet>();
+                foreach (ItemSet set in C)
+                {
+                    foreach (ExpressionDefinition symbol in symbols)
+                    {
+                        ItemSet _goto = set.Goto(symbol);
+
+                        if (_goto.Count > 0)
+                        {
+                            ItemSet _existingGoto = C.FirstOrDefault(x => x.IsEqualTo(_goto));
+                            if (_existingGoto == null)
+                            {
+                                _existingGoto = setsToAdd.FirstOrDefault(x => x.IsEqualTo(_goto));
+                                if (_existingGoto == null)
+                                {
+                                    setsToAdd.Add(_goto);
+                                    _existingGoto = _goto;
+                                }
+                            }
+
+                            if (!set.Transitions.ContainsKey(symbol))
+                            {
+                                set.Transitions.Add(symbol, _existingGoto);
+                            }
+                        }
+                    }
+                }
+
+                if (setsToAdd.Count == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    C.AddRange(setsToAdd);
+                }
+            }
+
+            return C;
+        }
+
         public ItemSet Closure()
         {
             ItemSet set = Clone();
 
-            foreach(Item item in this)
+            bool addedItem = true;
+
+            while (addedItem)
             {
-                ItemSet closure = item.Closure();
-                set.AddRange(closure.Where(x => !set.Any(y => y.IsEqualTo(x))));
+                addedItem = false;
+
+                foreach (Item item in set.ToList())
+                {
+                    ItemSet closure = item.Closure();
+
+                    foreach (Item i in closure)
+                    {
+                        if (!set.Any(x => x.IsEqualTo(i)))
+                        {
+                            set.Add(i);
+                            addedItem = true;
+                        }
+                    }
+                }
             }
 
             return set;
@@ -72,19 +131,30 @@ namespace Compiler.Parser.Instances
 
         public List<Item> NonKernelItems()
         {
-            List<Item> result = this.Where(x => x.DotIndex == 0).ToList();
-
-            if (!result.Contains(InitialItem))
-            {
-                result.Add(InitialItem);
-            }
+            List<Item> result = this.Where(x => x.DotIndex == 0
+                && x.SubProduction.Production.Identifier != "Initial").ToList();
 
             return result;
         }
 
         public List<Item> KernelItems()
         {
-            return this.Except(NonKernelItems()).ToList();
+            List<Item> result = this.Except(NonKernelItems()).ToList();
+
+            if (this.Any(x => x.SubProduction.Production.Identifier == "Initial"))
+            {
+                result.Add(this.First(x => x.SubProduction.Production.Identifier == "Initial"));
+            }
+
+            return result;
+        }
+
+        public void RemoveNonKernels()
+        {
+            foreach(Item item in NonKernelItems())
+            {
+                Remove(item);
+            }
         }
 
         public ItemSet Clone()
