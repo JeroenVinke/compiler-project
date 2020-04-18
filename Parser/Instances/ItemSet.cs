@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Compiler.Common;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Compiler.Parser.Instances
@@ -83,6 +84,58 @@ namespace Compiler.Parser.Instances
             return C;
         }
 
+        public List<LookaheadPropogation> DetermineLookaheads(ExpressionDefinition x)
+        {
+            List<LookaheadPropogation> result = new List<LookaheadPropogation>();
+
+            if (!Transitions.Keys.Contains(x))
+            {
+                return result;
+            }
+
+            foreach (Item item in KernelItems())
+            {
+                ItemSet j = new ItemSet(
+                    new List<Item>()
+                    {
+                        new Item(item.SubProduction,
+                            new List<TerminalExpressionDefinition>() {
+                                new TerminalExpressionDefinition {
+                                    TokenType = TokenType.Hash
+                                }
+                            }
+                        )
+                    }
+                );
+
+                foreach (Item closureItem in j.KernelItems())
+                {
+                    if (closureItem.ExpressionAfterDot != null
+                        && closureItem.ExpressionAfterDot.IsEqualTo(x))
+                    {
+                        Item i = Transitions[x].First(xx => xx.IsEqualTo(closureItem, true));
+
+                        if (!closureItem.Lookahead.Any(y => y.TokenType == TokenType.Hash))
+                        {
+                            i.Lookahead.AddRange(closureItem.Lookahead.Except(i.Lookahead));
+                        }
+                        else
+                        {
+                            result.Add(new LookaheadPropogation
+                            {
+                                FromItem = item,
+                                FromSet = this,
+                                ToSet = Transitions[x],
+                                ToItem = i
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public ItemSet Closure()
         {
             ItemSet set = Clone();
@@ -99,7 +152,7 @@ namespace Compiler.Parser.Instances
 
                     foreach (Item i in closure)
                     {
-                        if (!set.Any(x => x.IsEqualTo(i)))
+                        if (!set.Any(x => x.SubProduction == i.SubProduction && x.DotIndex == i.DotIndex))
                         {
                             set.Add(i);
                             addedItem = true;

@@ -17,6 +17,8 @@
         NumericExpression,
         Identifier,
         Number,
-        RelOp
+        RelOp,
+        If,
+        IfElse
     }
 }

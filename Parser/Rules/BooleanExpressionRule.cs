@@ -1,4 +1,5 @@
 ﻿using Compiler.Common;
+using Compiler.Parser.SyntaxTreeNodes;
 using System;
 using System.Collections.Generic;
 
@@ -26,10 +27,9 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
-                    //new SemanticAction((ParsingNode node) => {
-                    //    node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
-                    //    node.Attributes.Add("syn", node.GetAttribute<BooleanExpressionASTNode>("inh"));
-                    //})
+                    new SemanticActionDefinition((ParsingNode node) => {
+                        node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                    })
                 }
             );
         }
@@ -40,7 +40,10 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "Boolean" }
+                    new NonTerminalExpressionDefinition { Identifier = "Boolean" },
+                    new SemanticActionDefinition((ParsingNode node) => {
+                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<SyntaxTreeNode>("Boolean", "syntaxtreenode"));
+                    })
                 }
             );
         }
@@ -53,7 +56,15 @@ namespace Compiler.Parser.Rules
                 {
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Or },
-                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" }
+                    new NonTerminalExpressionDefinition { Key = "BooleanExpression2", Identifier = "BooleanExpression" },
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", "syntaxtreenode");
+
+                        OrASTNode syntaxTreeNode = new OrASTNode(left, right);
+                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                    })
                 }
             );
         }
@@ -66,7 +77,15 @@ namespace Compiler.Parser.Rules
                 {
                     new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.And },
-                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" }
+                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
+                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", "syntaxtreenode");
+
+                        AndASTNode syntaxTreeNode = new AndASTNode(left, right);
+                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                    })
                 }
             );
         }

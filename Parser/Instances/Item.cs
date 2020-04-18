@@ -66,7 +66,7 @@ namespace Compiler.Parser.Instances
 
                             foreach (TerminalExpressionDefinition ted in First(tail))
                             {
-                                if (!_closure.Any(x => x.SubProduction == subProduction))
+                                if (!_closure.Any(x => x.SubProduction == subProduction && x.DotIndex == 0))
                                 {
                                     _closure.Add(new Item(subProduction, new List<TerminalExpressionDefinition> { ted }));
                                 }

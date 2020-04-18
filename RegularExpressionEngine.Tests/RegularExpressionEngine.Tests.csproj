@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Parser\Parser.csproj" />
     <ProjectReference Include="..\RegularExpressionEngine\RegularExpressionEngine.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,8 @@
 ﻿{
+    int bar;
+
+    bar = 0;
+    
     if(bar < 10) {
         bar = 1;
     }
@@ -8,4 +12,6 @@
     else {
         bar = 3;
     }
+
+    bar = 4;
 }

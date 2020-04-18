@@ -9,7 +9,7 @@ namespace Compiler.Parser
 
         private Expression expression;
         private ParsingNode parent;
-        //public Parser Parser { get; set; }
+        public BottomUpParser Parser { get; set; }
         public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         private int Id { get; set; }
@@ -20,7 +20,7 @@ namespace Compiler.Parser
             set
             {
                 parent = value;
-                value.Children.Add(this);
+                value.Children.Insert(0, this);
             }
         }
 
@@ -57,11 +57,14 @@ namespace Compiler.Parser
                 }
                 else
                 {
-                    ParsingNode child = Children.First(x => x.Expression.Key == expressionDefinition.Key);
-                    
-                    if (child.Expression is NonTerminalExpression)
+                    if (!(expressionDefinition is TerminalExpressionDefinition ted && ted.TokenType == Compiler.Common.TokenType.EmptyString))
                     {
-                        child.EvaluateAttributes();
+                        ParsingNode child = Children.First(x => x.Expression.Key == expressionDefinition.Key);
+
+                        if (child.Expression is NonTerminalExpression)
+                        {
+                            child.EvaluateAttributes();
+                        }
                     }
                 }
             }

@@ -9,25 +9,6 @@ namespace Compiler.Parser.Rules
     {
         public static void Initialize(ref Grammar grammar)
         {
-            //grammar.Add(new Production("NumericExpression",
-            //    new SubProduction
-            //    (
-            //        new List<ExpressionDefinition>
-            //        {
-            //            new NonTerminalExpressionDefinition { Identifier = "Factor" },
-            //            //new SemanticAction((ParsingNode node) =>
-            //            //{
-            //            //    node.GetNodeForKey("NumericExpression`").Attributes.Add("inh", node.GetAttributeForKey<FactorASTNode>("Factor", "syntaxtreenode"));
-            //            //}),
-            //            new NonTerminalExpressionDefinition { Identifier = "NumericExpression`" },
-            //            //new SemanticAction((ParsingNode node) =>
-            //            //{
-            //            //    node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression`", "syntaxtreenode"));
-            //            //})
-            //        }
-            //    )
-            //));
-
             grammar.Add(new Production("NumericExpression", new List<SubProduction> {
                 NumberRule(),
                 PlusRule(),
@@ -42,10 +23,10 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
-                    //new SemanticAction((ParsingNode node) => {
-                    //    node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
-                    //    node.Attributes.Add("syn", node.GetAttribute<BooleanExpressionASTNode>("inh"));
-                    //})
+                    new SemanticActionDefinition((ParsingNode node) => {
+                        node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                        node.Attributes.Add("syn", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                    })
                 }
             );
         }
@@ -54,18 +35,13 @@ namespace Compiler.Parser.Rules
         {
             return new SubProduction
             (
-                new List<ExpressionDefinition> {
+                new List<ExpressionDefinition>
+                {
                     new TerminalExpressionDefinition { TokenType = TokenType.Integer },
-                    //new SemanticAction((ParsingNode node) => {
-                    //        node.GetNodeForKey("NumericExpression`").Attributes.Add("inh", node.GetAttributeForKey<SyntaxTreeNode>("Factor", "syntaxtreenode"));
-                    //}),
-                    //new NonTerminalExpressionDefinition { Identifier = "NumericExpression`" },
-                    //new SemanticAction((ParsingNode node) => {
-                    //    FactorASTNode left = node.GetAttribute<FactorASTNode>("inh");
-                    //    FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("NumericExpression`", "syntaxtreenode");
-                    //    AdditionASTNode syntaxTreeNode = new AdditionASTNode(left, right);
-                    //    node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
-                    //})
+                    new SemanticActionDefinition((ParsingNode node) => {
+                        int value = Convert.ToInt32(node.GetAttributeForKey<WordToken>("Integer", "token").Lexeme);
+                        node.Attributes.Add("syntaxtreenode", new NumberASTNode() { Value = value });
+                    })
                 }
             );
         }
@@ -75,19 +51,15 @@ namespace Compiler.Parser.Rules
             return new SubProduction
             (
                 new List<ExpressionDefinition> {
-                    new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
+                    new NonTerminalExpressionDefinition { Key = "NumericExpression1", Identifier = "NumericExpression" },
                     new TerminalExpressionDefinition { TokenType = TokenType.Plus },
-                    new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
-                    //new SemanticAction((ParsingNode node) => {
-                    //        node.GetNodeForKey("NumericExpression`").Attributes.Add("inh", node.GetAttributeForKey<SyntaxTreeNode>("Factor", "syntaxtreenode"));
-                    //}),
-                    //new NonTerminalExpressionDefinition { Identifier = "NumericExpression`" },
-                    //new SemanticAction((ParsingNode node) => {
-                    //    FactorASTNode left = node.GetAttribute<FactorASTNode>("inh");
-                    //    FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("NumericExpression`", "syntaxtreenode");
-                    //    AdditionASTNode syntaxTreeNode = new AdditionASTNode(left, right);
-                    //    node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
-                    //})
+                    new NonTerminalExpressionDefinition { Key = "NumericExpression2", Identifier = "NumericExpression" },
+                    new SemanticActionDefinition((ParsingNode node) => {
+                        FactorASTNode left = node.GetAttributeForKey<FactorASTNode>("NumericExpression1", "syntaxtreenode");
+                        FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("NumericExpression2", "syntaxtreenode");
+                        AdditionASTNode syntaxTreeNode = new AdditionASTNode(left, right);
+                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                    })
                 }
             );
         }

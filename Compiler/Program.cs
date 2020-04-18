@@ -1,5 +1,7 @@
 ﻿using Compiler.Common;
 using Compiler.LexicalAnalyer;
+using Compiler.Parser;
+using Compiler.Parser.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,43 +61,15 @@ namespace Compiler
             string input = File.ReadAllText("./simple.txt");
 
             LexicalAnalyzer analyzer = new LexicalAnalyzer(lexLanguage, input);
-
-            Parser.BottomUpParser parser = new Parser.BottomUpParser(analyzer);
+            
+            BottomUpParser parser = new BottomUpParser(analyzer);
 
             parser.Parse();
 
-            //Parser.SyntaxTreeNode ast = parser.ParentParsingTreeNode.GetAttribute<Parser.SyntaxTreeNode>("syntaxtreenode");
+            parser.OutputDebugFiles();
+            parser.OutputIL();
 
-            //List<Instruction> instructions = new List<Instruction>();
-            //ast.GenerateCode(instructions);
-
-            //foreach(Instruction instruction in instructions)
-            //{
-            //    string code = instruction.GenerateCodeString();
-
-            //    if (!string.IsNullOrEmpty(code))
-            //    {
-            //        Console.WriteLine(code);
-            //    }
-            //}
-
-            //string result = "";
-            //result += "digraph A {\r\n";
-            //result += "subgraph cluster_2 {\r\n";
-            //result += "label=\"Parser tree\";\r\n";
-            //result += parser.ParentParsingTreeNode.ToDot();
-            //result += "}\r\n";
-            //result += "subgraph cluster_3 {\r\n";
-            //result += "label=\"Syntax tree\";\r\n";
-            //result += ast.ToDot();
-            //result += "}\r\n";
-            //result += "subgraph cluster_4 {\r\n";
-            //result += "label=\"Symbol table\";\r\n";
-            //result += parser.RootSymbolTable.ToDot();
-            //result += "}\r\n";
-            //result += "}\r\n";
-
-            //File.WriteAllText("output.txt", result);
+            Console.WriteLine("Done");
         }
     }
 }

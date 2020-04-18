@@ -47,6 +47,10 @@ namespace Compiler.Parser
                     else if (item.IsDotIndexAtEnd())
                     {
                         string identifier = item.SubProduction.Production.Identifier;
+                        if (identifier == "ClosedStatement")
+                        {
+                            ;
+                        }
                         foreach (TerminalExpressionDefinition ted1 in new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow())
                         {
                             parsingTable.Add(new ActionParsingTableEntry

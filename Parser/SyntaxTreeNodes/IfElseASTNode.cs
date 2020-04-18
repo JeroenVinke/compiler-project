@@ -1,15 +1,15 @@
 ﻿using Compiler.Parser.Common;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
-    public class IfASTNode : StatementASTNode
+    public class IfElseASTNode : StatementASTNode
     {
         public BooleanExpressionASTNode Condition { get; set; }
-        public SyntaxTreeNode Body { get; set; }
+        public SyntaxTreeNode IfBody { get; set; }
+        public SyntaxTreeNode ElseBody { get; set; }
 
-        public IfASTNode() : base(SyntaxTreeNodeType.If)
+        public IfElseASTNode() : base(SyntaxTreeNodeType.IfElse)
         {
         }
 
@@ -19,10 +19,11 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
             Label trueLabel = new Label();
             instructions.Add(trueLabel);
-            Body.GenerateCode(instructions);
+            IfBody.GenerateCode(instructions);
 
             Label falseLabel = new Label();
             instructions.Add(falseLabel);
+            ElseBody.GenerateCode(instructions);
 
             Condition.Backpatch(trueLabel, falseLabel);
 
@@ -31,12 +32,12 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override string ToString()
         {
-            return "If";
+            return "IfElse";
         }
 
         protected override List<SyntaxTreeNode> GetChildren()
         {
-            return new List<SyntaxTreeNode> { Condition, Body };
+            return new List<SyntaxTreeNode> { Condition, IfBody, ElseBody };
         }
     }
 }

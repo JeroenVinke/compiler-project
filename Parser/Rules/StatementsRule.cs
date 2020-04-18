@@ -1,4 +1,5 @@
 ﻿using Compiler.Common;
+using Compiler.Parser.SyntaxTreeNodes;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -21,18 +22,13 @@ namespace Compiler.Parser.Rules
                         {
                             new NonTerminalExpressionDefinition { Identifier = "Statements" },
                             new NonTerminalExpressionDefinition { Identifier = "Statement" },
-                            //new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
-                            //new SemanticActionDefinition((ParsingNode node) =>
-                            //{
-                            //}),
-                            //new NonTerminalExpressionDefinition { Identifier = "Statements`" },
-                            //new SemanticActionDefinition((ParsingNode node) =>
-                            //{
-                                //StatementsASTNode astNode = new StatementsASTNode();
-                                //astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
-                                //astNode.Statements.AddRange(node.GetAttributeForKey<List<StatementASTNode>>("Statements`", "syntaxtreenodes"));
-                                //node.Attributes.Add("syntaxtreenode", astNode);
-                            //})
+                            new SemanticActionDefinition((ParsingNode node) =>
+                            {
+                                StatementsASTNode astNode = new StatementsASTNode();
+                                astNode.Statements.AddRange(node.GetAttributeForKey<StatementsASTNode>("Statements", "syntaxtreenodes").Statements);
+                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
+                                node.Attributes.Add("syntaxtreenodes", astNode);
+                            })
                         }
                     ),
                     new SubProduction
@@ -40,37 +36,23 @@ namespace Compiler.Parser.Rules
                         new List<ExpressionDefinition>
                         {
                             new NonTerminalExpressionDefinition { Identifier = "Statement" },
-                            //new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
-                            //new SemanticActionDefinition((ParsingNode node) =>
-                            //{
-                            //}),
-                            //new NonTerminalExpressionDefinition { Identifier = "Statements`" },
-                            //new SemanticActionDefinition((ParsingNode node) =>
-                            //{
-                                //StatementsASTNode astNode = new StatementsASTNode();
-                                //astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
-                                //astNode.Statements.AddRange(node.GetAttributeForKey<List<StatementASTNode>>("Statements`", "syntaxtreenodes"));
-                                //node.Attributes.Add("syntaxtreenode", astNode);
-                            //})
+                            new SemanticActionDefinition((ParsingNode node) =>
+                            {
+                                StatementsASTNode astNode = new StatementsASTNode();
+                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
+                                node.Attributes.Add("syntaxtreenodes", astNode);
+                            })
                         }
                     ),
-                    //new SubProduction
-                    //(
-                    //    new List<ExpressionDefinition>
-                    //    {
-                    //        new NonTerminalExpressionDefinition { Identifier = "Statement" },
-                    //        new TerminalExpressionDefinition { TokenType = TokenType.Semicolon }
-                    //    }
-                    //),
                     new SubProduction
                     (
                         new List<ExpressionDefinition>
                         {
                             new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
-                            //new SemanticActionDefinition((ParsingNode node) => {
-                            //    List<StatementASTNode> syntaxTreeNodes = new List<StatementASTNode>();
-                            //    node.Attributes.Add("syntaxtreenodes", syntaxTreeNodes);
-                            //})
+                            new SemanticActionDefinition((ParsingNode node) =>
+                            {
+                                node.Attributes.Add("syntaxtreenodes", new StatementsASTNode());
+                            })
                         }
                     )
                 }

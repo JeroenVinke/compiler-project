@@ -1,4 +1,6 @@
 ﻿using Compiler.Common;
+using Compiler.Parser.SyntaxTreeNodes;
+using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -17,24 +19,9 @@ namespace Compiler.Parser.Rules
                 new List<SubProduction>
                 {
                     IdentifierRule(),
-                    IntegerRule(),
-                    //ParenthesisRule(),
+                    //IntegerRule(),
+                    ParenthesisRule(),
                     NumExpressionRule()
-                }
-            );
-        }
-
-        private static SubProduction IntegerRule()
-        {
-            return new SubProduction
-            (
-                new List<ExpressionDefinition>
-                {
-                    new TerminalExpressionDefinition { TokenType = TokenType.Integer },
-                    //new SemanticAction((ParsingNode node) => {
-                    //    int value = Convert.ToInt32(node.GetAttributeForKey<WordToken>("Integer", "token").Lexeme);
-                    //    node.Attributes.Add("syntaxtreenode", new NumberASTNode() { Value = value });
-                    //})
                 }
             );
         }
@@ -46,24 +33,24 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
-                    //new SemanticAction((ParsingNode node) =>
-                    //{
-                    //    SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
-                    //    string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
+                        string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
 
-                    //    SymbolTableEntry entry = null;
-                    //    if (symbolTable.Get(key, out entry))
-                    //    {
-                    //        node.Attributes.Add("symboltableentry", entry);
-                    //    }
-                    //    else
-                    //    {
-                    //        throw new Exception();
-                    //    }
+                        SymbolTableEntry entry = null;
+                        if (symbolTable.Get(key, out entry))
+                        {
+                            node.Attributes.Add("symboltableentry", entry);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
 
-                    //    node.Attributes.Add("token", node.GetAttributeForKey<WordToken>("Identifier", "token"));
-                    //    node.Attributes.Add("syntaxtreenode", new IdentifierASTNode() { SymbolTableEntry = entry });
-                    //})
+                        node.Attributes.Add("token", node.GetAttributeForKey<WordToken>("Identifier", "token"));
+                        node.Attributes.Add("syntaxtreenode", new IdentifierASTNode() { SymbolTableEntry = entry });
+                    })
                 }
             );
         }
@@ -75,10 +62,10 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
-                    //new SemanticAction((ParsingNode node) =>
-                    //{
-                    //    node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression", "syntaxtreenode"));
-                    //})
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression", "syntaxtreenode"));
+                    })
                 }
             );
         }
@@ -91,10 +78,10 @@ namespace Compiler.Parser.Rules
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
                     new NonTerminalExpressionDefinition { Identifier = "Factor" },
-                    //new SemanticAction((ParsingNode node) =>{
-                    //    node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("Factor`", "syntaxtreenode"));
-                    //    node.Attributes.Add("value", node.GetAttributeForKey<NumericExpressionASTNode>("Factor`", "value"));
-                    //}),
+                    new SemanticActionDefinition((ParsingNode node) =>{
+                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("Factor", "syntaxtreenode"));
+                        node.Attributes.Add("value", node.GetAttributeForKey<NumericExpressionASTNode>("Factor", "value"));
+                    }),
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose }
                 }
             );

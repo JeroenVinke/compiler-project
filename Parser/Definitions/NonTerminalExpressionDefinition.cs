@@ -45,17 +45,15 @@ namespace Compiler.Parser
 
             foreach (Production production in Grammar.Instance)
             {
-                if (production.Identifier == Identifier)
-                {
-                    continue;
-                }
-
                 foreach (SubProduction subProduction in production)
                 {
                     bool found = false;
 
+                    ExpressionDefinition last = null;
+
                     foreach (ExpressionDefinition expression in subProduction.Where(x => !(x is SemanticActionDefinition)))
                     {
+                        last = expression;
 
                         if (expression is NonTerminalExpressionDefinition ne && ne.Identifier == Identifier)
                         {
@@ -75,6 +73,11 @@ namespace Compiler.Parser
                                 found = false;
                             }
                         }
+                    }
+
+                    if (production.Identifier == Identifier && last is NonTerminalExpressionDefinition nte)
+                    {
+                        result.AddRangeUnique(new NonTerminalExpressionDefinition { Identifier = nte.Identifier }.GetFollow(visited));
                     }
 
                     // when last
