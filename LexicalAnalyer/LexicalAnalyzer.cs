@@ -1,5 +1,4 @@
-﻿using Compiler;
-using Compiler.Common;
+﻿using Compiler.Common;
 using Compiler.RegularExpressionEngine;
 using System;
 using System.Collections.Generic;

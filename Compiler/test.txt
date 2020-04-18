@@ -1,6 +1,0 @@
-﻿public class Test {
-    public int Foo(int index) {
-    
-        return 5;
-    }
-}

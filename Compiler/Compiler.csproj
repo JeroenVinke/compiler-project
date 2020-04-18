@@ -12,10 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="simple.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="numexpr.txt">
+    <None Update="input.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="test.txt">

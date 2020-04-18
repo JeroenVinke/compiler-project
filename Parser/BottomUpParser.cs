@@ -20,13 +20,14 @@ namespace Compiler.Parser
         private SyntaxTreeNode TopLevelAST { get; set; }
         private List<ExpressionDefinition> GrammarSymbols { get; set; }
         private List<ItemSet> CanonicalSets { get; set; }
+        private List<ParsingNode> ParsingNodes = new List<ParsingNode>();
 
         public BottomUpParser(LexicalAnalyzer lexicalAnalyzer)
         {
             LexicalAnalyzer = lexicalAnalyzer;
         }
 
-        public void Parse()
+        public BottomUpParser Parse()
         {
             Current = LexicalAnalyzer.GetNextToken();
 
@@ -47,6 +48,8 @@ namespace Compiler.Parser
             ParsingNodes.Last().EvaluateAttributes();
 
             TopLevelAST = ParsingNodes.Last().GetAttribute<SyntaxTreeNode>("syntaxtreenode");
+
+            return this;
         }
 
 
@@ -110,7 +113,7 @@ namespace Compiler.Parser
             }
         }
 
-        public void OutputDebugFiles()
+        public BottomUpParser OutputDebugFiles()
         {
             string result = "";
             result += "digraph A {\r\n";
@@ -136,9 +139,11 @@ namespace Compiler.Parser
                 result += production + Environment.NewLine;
             }
             File.WriteAllText("grammar.txt", result);
+
+            return this;
         }
 
-        public void OutputIL()
+        public BottomUpParser OutputIL()
         {
             List<Instruction> instructions = new List<Instruction>();
             TopLevelAST.GenerateCode(instructions);
@@ -157,6 +162,8 @@ namespace Compiler.Parser
 
             File.WriteAllText("IL.txt", result);
             Console.WriteLine(result);
+
+            return this;
         }
 
         private void Error()
@@ -165,7 +172,6 @@ namespace Compiler.Parser
             throw new Exception("TODO: Syntax error");
         }
 
-        private List<ParsingNode> ParsingNodes = new List<ParsingNode>();
         private bool Reduce(ItemSet arg1, ExpressionDefinition arg3, SubProduction subProduction)
         {
             NonTerminalExpressionDefinition target = new NonTerminalExpressionDefinition {

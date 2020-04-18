@@ -1,7 +1,6 @@
 ﻿using Compiler.Common;
 using Compiler.LexicalAnalyer;
 using Compiler.Parser;
-using Compiler.Parser.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +11,17 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-            Advanced();
+            string input = File.ReadAllText(args[0]);
+
+            LexicalAnalyzer analyzer = new LexicalAnalyzer(GetLexicalLanguage(), input);
+            BottomUpParser parser = new BottomUpParser(analyzer);
+
+            parser
+                .Parse()
+                .OutputDebugFiles()
+                .OutputIL();
+
+            Console.WriteLine("Done");
 
             Console.ReadLine();
             Console.ReadLine();
@@ -20,7 +29,7 @@ namespace Compiler
             Console.ReadLine();
         }
 
-        private static void Advanced()
+        private static Dictionary<string, Func<string, Token>> GetLexicalLanguage()
         {
             Dictionary<string, Func<string, Token>> lexLanguage = new Dictionary<string, Func<string, Token>>();
             lexLanguage.Add(" #", (string value) => { return new WordToken { Type = TokenType.Nothing }; });
@@ -57,19 +66,7 @@ namespace Compiler
             });
             lexLanguage.Add("([0-9])*#", (string value) => { return new WordToken { Type = TokenType.Integer }; });
             lexLanguage.Add(";#", (string value) => { return new WordToken { Type = TokenType.Semicolon }; });
-
-            string input = File.ReadAllText("./simple.txt");
-
-            LexicalAnalyzer analyzer = new LexicalAnalyzer(lexLanguage, input);
-            
-            BottomUpParser parser = new BottomUpParser(analyzer);
-
-            parser.Parse();
-
-            parser.OutputDebugFiles();
-            parser.OutputIL();
-
-            Console.WriteLine("Done");
+            return lexLanguage;
         }
     }
 }
