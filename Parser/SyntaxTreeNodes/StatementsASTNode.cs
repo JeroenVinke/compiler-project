@@ -14,12 +14,20 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override Address GenerateCode(List<Instruction> instructions)
         {
-            Label label = new Label();
-            Address address = new Address();
+            StatementASTNode previous = null;
 
             foreach (StatementASTNode statement in Statements)
             {
+                Label label = new Label();
+
+                if (previous != null && previous.Backpatch(label))
+                {
+                    instructions.Add(label);
+                }
+
                 statement.GenerateCode(instructions);
+
+                previous = statement;
             }
 
             return base.GenerateCode(instructions);

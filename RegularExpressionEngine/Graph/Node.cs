@@ -66,7 +66,7 @@ namespace Compiler.RegularExpressionEngine
                 if (!visited.Contains(edge))
                 {
                     visited.Add(edge);
-                    if (!edges.Any(x => x.From.Id == edge.From.Id && x.To.Id == edge.To.Id))
+                    if (!edges.Any(x => x.From.Id == edge.From.Id && x.To.Id == edge.To.Id && edge.Character == x.Character))
                     {
                         edges.Add(edge);
                     }

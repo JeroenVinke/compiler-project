@@ -26,7 +26,7 @@ namespace Compiler.RegularExpressionEngine
             }
         }
 
-        private static NodeSet GetOrCreateSet(string regex)
+        public static NodeSet GetOrCreateSet(string regex)
         {
             if (!Sets.TryGetValue(regex, out NodeSet set))
             {

@@ -17,31 +17,40 @@ namespace Compiler.Parser
 
         private List<ItemSet> Stack = new List<ItemSet>();
         private ParsingTable ParsingTable { get; set; }
-        private SyntaxTreeNode TopLevelAST { get; set; }
+        public SyntaxTreeNode TopLevelAST { get; set; }
         private List<ExpressionDefinition> GrammarSymbols { get; set; }
         private List<ItemSet> CanonicalSets { get; set; }
         private List<ParsingNode> ParsingNodes = new List<ParsingNode>();
+        private ItemSet Initial { get; set; }
+        public BottomUpParser() : this(null)
+        {
+        }
 
         public BottomUpParser(LexicalAnalyzer lexicalAnalyzer)
         {
             LexicalAnalyzer = lexicalAnalyzer;
+
+            SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == "Initial").First();
+            GrammarSymbols = Grammar.Instance.Symbols();
+
+            Item startingItem = new Item(startingRule, new List<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
+            Initial = new ItemSet(new List<Item> { startingItem }).Closure();
+            CanonicalSets = Initial.GetCanonicalSets(GrammarSymbols);
+            PropogateLookaheads(GrammarSymbols);
+
+            ParsingTable = ParsingTable.Create(CanonicalSets, GrammarSymbols, Shift, Accept, Reduce);
+        }
+
+        public string GetAutomaton()
+        {
+            return Dotify(CanonicalSets.First());
         }
 
         public BottomUpParser Parse()
         {
             Current = LexicalAnalyzer.GetNextToken();
 
-            SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == "Initial").First();
-            GrammarSymbols = Grammar.Instance.Symbols();
-
-            Item startingItem = new Item(startingRule, new List<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
-            ItemSet initial = new ItemSet(new List<Item> { startingItem }).Closure();
-            CanonicalSets = initial.GetCanonicalSets(GrammarSymbols);
-            PropogateLookaheads(GrammarSymbols);
-
-            ParsingTable = ParsingTable.Create(CanonicalSets, GrammarSymbols, Shift, Accept, Reduce);
-
-            Stack.Add(initial);
+            Stack.Add(Initial);
 
             DoParse();
 
@@ -117,7 +126,7 @@ namespace Compiler.Parser
         {
             string result = "";
             result += "digraph A {\r\n";
-            result += Dotify(CanonicalSets.First());
+            result += GetAutomaton();
             result += "}\r\n";
             File.WriteAllText("automaton.txt", result);
 
@@ -145,6 +154,16 @@ namespace Compiler.Parser
 
         public BottomUpParser OutputIL()
         {
+            string result = GetIL();
+
+            File.WriteAllText("IL.txt", result);
+            Console.WriteLine(result);
+
+            return this;
+        }
+
+        public string GetIL()
+        {
             List<Instruction> instructions = new List<Instruction>();
             TopLevelAST.GenerateCode(instructions);
 
@@ -160,10 +179,7 @@ namespace Compiler.Parser
                 }
             }
 
-            File.WriteAllText("IL.txt", result);
-            Console.WriteLine(result);
-
-            return this;
+            return result;
         }
 
         private void Error()

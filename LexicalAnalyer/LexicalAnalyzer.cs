@@ -72,7 +72,7 @@ namespace Compiler.LexicalAnalyer
                     }
                     else
                     {
-                        SourceText = SourceText.Substring(i);
+                        SourceText = SourceText.Substring(buffer.Length);
                         return GetNextToken();
                     }
                 }

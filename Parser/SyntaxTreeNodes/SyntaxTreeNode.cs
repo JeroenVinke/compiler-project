@@ -8,6 +8,7 @@ namespace Compiler.Parser
         public SyntaxTreeNodeType Type { get; set; }
         public int Id { get; set; }
         public static int MaxId { get; set; }
+        public List<JumpInstruction> NextInstructionsToBackpatch { get; set; } = new List<JumpInstruction>();
 
         public SyntaxTreeNode(SyntaxTreeNodeType type)
         {
@@ -17,11 +18,6 @@ namespace Compiler.Parser
 
         public virtual Address GenerateCode(List<Instruction> instructions)
         {
-            //foreach (SyntaxTreeNode child in GetChildren())
-            //{
-            //    child.GenerateCode(instructions);
-            //}
-
             return null;
         }
 
@@ -41,6 +37,16 @@ namespace Compiler.Parser
         protected virtual List<SyntaxTreeNode> GetChildren()
         {
             return new List<SyntaxTreeNode>();
+        }
+
+        public virtual bool Backpatch(Label nextLabel)
+        {
+            foreach (JumpInstruction instruction in NextInstructionsToBackpatch)
+            {
+                instruction.Label = nextLabel;
+            }
+
+            return NextInstructionsToBackpatch.Count > 0;
         }
     }
 }

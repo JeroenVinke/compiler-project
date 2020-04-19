@@ -11,8 +11,8 @@ namespace Compiler.Parser.Rules
         {
             grammar.Add(new Production("NumericExpression", new List<SubProduction> {
                 NumberRule(),
-                PlusRule(),
-                EmptyRule()
+                PlusRule()
+                //EmptyRule()
             }));
         }
 

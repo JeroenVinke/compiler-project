@@ -1,0 +1,96 @@
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+html, body, #root, #root > div, #root > div > .container {
+    height: 100%;
+}
+
+code {
+    color: #E01A76;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.regex {
+    height: 100%;
+}
+
+    .regex > .row {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+    }
+
+        .regex > .row > div {
+            flex: 0 0 50%;
+            max-width: 33%;
+        }
+
+        .regex > .row > .left {
+            display: flex;
+            flex-direction: column;
+            max-width: 33%;
+        }
+
+        .regex > .row > .center {
+            display: flex;
+            flex-direction: column;
+            max-width: 33%;
+        }
+
+        .regex > .row > .graphContainer1, .regex > .row > .graphContainer2 {
+          min-height: 200px;
+        }
+
+        .regex > .row > .right {
+            display: flex;
+            flex-direction: column;
+            max-width: 33%;
+            min-height: 200px;
+        }
+
+.repl {
+    height: 100%;
+}
+
+    .repl > .row {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-between;
+    }
+
+        .repl > .row > div {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+
+        .repl > .row > .left {
+            display: flex;
+            flex-direction: column;
+            max-width: 50%;
+        }
+
+        .repl > .row > .right {
+            display: flex;
+            flex-direction: column;
+            max-width: 50%;
+        }
+
+        .repl > .row > .left > textarea {
+            flex: 1;
+        }
+
+.automaton > .graphContainer {
+    width: 100%;
+    height: 100%;
+}

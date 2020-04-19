@@ -21,9 +21,14 @@ namespace Compiler.Parser.SyntaxTreeNodes
             instructions.Add(trueLabel);
             IfBody.GenerateCode(instructions);
 
+            JumpInstruction doneJump = new JumpInstruction(null);
+            NextInstructionsToBackpatch.Add(doneJump);
+            instructions.Add(doneJump);
+
             Label falseLabel = new Label();
             instructions.Add(falseLabel);
             ElseBody.GenerateCode(instructions);
+            ElseBody.NextInstructionsToBackpatch.AddRange(NextInstructionsToBackpatch);
 
             Condition.Backpatch(trueLabel, falseLabel);
 
@@ -33,6 +38,11 @@ namespace Compiler.Parser.SyntaxTreeNodes
         public override string ToString()
         {
             return "IfElse";
+        }
+
+        public override bool Backpatch(Label nextLabel)
+        {
+            return base.Backpatch(nextLabel) | ElseBody.Backpatch(nextLabel);
         }
 
         protected override List<SyntaxTreeNode> GetChildren()
