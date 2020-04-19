@@ -1,16 +1,23 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
+RUN curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
+RUN apt-get install --yes nodejs
 
-# Copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+WORKDIR /src
+COPY . .
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
-WORKDIR /app
-COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "aspnetapp.dll"]
+# https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-restore?tabs=netcore2x
+RUN dotnet restore "./JeroenCompilerFrontend.csproj"
+
+# https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish?tabs=netcore21
+RUN dotnet publish "JeroenCompilerFrontend.csproj" -c Release -o /app/publish
+
+# https://hub.docker.com/_/microsoft-dotnet-core-aspnet/
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
+
+EXPOSE 80
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "JeroenCompilerFrontend.dll"]
