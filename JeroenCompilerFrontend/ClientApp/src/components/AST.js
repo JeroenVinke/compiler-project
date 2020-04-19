@@ -32,7 +32,7 @@ export class AST extends Component {
         this.setState({ loading: true });
         this.refs.graphContainer1.innerHTML = '';
 
-        return fetch("https://localhost:44353/api/compiler/ast", {
+        return fetch(process.env.apiUrl + "/api/compiler/ast", {
             body: JSON.stringify({
                 input: this.state.input
             }),

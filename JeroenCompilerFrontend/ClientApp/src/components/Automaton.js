@@ -13,7 +13,7 @@ export class Automaton extends Component {
     }
 
     getAutomaton() {
-      fetch("https://localhost:44353/api/compiler/automaton")
+      fetch(process.env.apiUrl + "/api/compiler/automaton")
         .then(res => res.json())
           .then(res => {
              let viz = new window.Viz({ workerURL: 'full.render.js'} );

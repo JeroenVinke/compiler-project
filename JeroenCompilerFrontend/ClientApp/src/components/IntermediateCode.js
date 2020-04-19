@@ -31,7 +31,7 @@ export class IntermediateCode extends Component {
     compile() {
         this.setState({ loading: true });
 
-        fetch("https://localhost:44353/api/compiler", {
+        fetch(process.env.apiUrl + "/api/compiler", {
             body: JSON.stringify({
                 input: this.state.input
             }),

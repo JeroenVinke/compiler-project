@@ -31,7 +31,7 @@ export class Tokenizer extends Component {
     compile() {
         this.setState({ loading: true });
 
-        fetch("https://localhost:44353/api/compiler/tokenize", {
+        fetch(process.env.apiUrl + "/api/compiler/tokenize", {
             body: JSON.stringify({
                 input: this.state.input
             }),
