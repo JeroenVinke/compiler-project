@@ -6,17 +6,18 @@ RUN apt-get install --yes nodejs
 WORKDIR /src
 COPY . .
 
-# https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-restore?tabs=netcore2x
+WORKDIR "./src/JeroenCompilerFrontend"
 RUN dotnet restore "./JeroenCompilerFrontend.csproj"
 
-# https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish?tabs=netcore21
+WORKDIR "./src/JeroenCompilerFrontend"
 RUN dotnet publish "JeroenCompilerFrontend.csproj" -c Release -o /app/publish
 
-# https://hub.docker.com/_/microsoft-dotnet-core-aspnet/
+WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim
 
-EXPOSE 80
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
 
 COPY --from=build /app/publish .
 
