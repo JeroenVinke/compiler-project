@@ -13,7 +13,7 @@ export class Grammar extends Component {
     }
 
     getGrammar() {
-      fetch(process.env.apiUrl + "/api/compiler/grammar")
+      fetch("/api/compiler/grammar")
         .then(res => res.json())
         .then(res => {
             this.setState({ grammar: res.productions });

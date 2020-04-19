@@ -51,7 +51,7 @@ export class RegexEngine extends Component {
     }
 
     getResult() {
-        return fetch("https://localhost:44353/api/compiler/regex", {
+        return fetch("/api/compiler/regex", {
             body: JSON.stringify({
                 regex: this.state.regex,
                 input: this.state.input
