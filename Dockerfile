@@ -7,7 +7,7 @@ WORKDIR /src
 COPY . .
 
 WORKDIR "./src/JeroenCompilerFrontend"
-RUN dotnet restore "./JeroenCompilerFrontend.csproj"
+RUN dotnet restore "JeroenCompilerFrontend.csproj"
 
 WORKDIR "./src/JeroenCompilerFrontend"
 RUN dotnet publish "JeroenCompilerFrontend.csproj" -c Release -o /app/publish
