@@ -6,11 +6,8 @@ RUN apt-get install --yes nodejs
 WORKDIR /src
 COPY . .
 
-WORKDIR "./src/JeroenCompilerFrontend"
-RUN dotnet restore "JeroenCompilerFrontend.csproj"
-
-WORKDIR "./src/JeroenCompilerFrontend"
-RUN dotnet publish "JeroenCompilerFrontend.csproj" -c Release -o /app/publish
+RUN dotnet restore "./JeroenCompilerFrontend/JeroenCompilerFrontend.csproj"
+RUN dotnet publish "./JeroenCompilerFrontend/JeroenCompilerFrontend.csproj" -c Release -o /app/publish
 
 WORKDIR /app
 
