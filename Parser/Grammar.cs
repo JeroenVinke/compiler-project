@@ -16,13 +16,16 @@ namespace Compiler.Parser
                 {
                     _instance = new Grammar();
 
-                    _instance.Add(new Production("Initial", new List<SubProduction> {
+                    _instance.Add(new Production(ParserConstants.Initial, new List<SubProduction> {
                         new SubProduction(new List<ExpressionDefinition>
                         {
-                            new NonTerminalExpressionDefinition { Identifier = "Codeblock" }
+                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Classes }
                         })
                     }));
 
+                    ClassRule.Initialize(ref _instance);
+                    FunctionRule.Initialize(ref _instance);
+                    TypeRule.Initialize(ref _instance);
                     CodeblockRule.Initialize(ref _instance);
                     StatementsRule.Initialize(ref _instance);
                     StatementRule.Initialize(ref _instance);

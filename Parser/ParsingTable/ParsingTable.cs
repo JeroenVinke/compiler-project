@@ -32,7 +32,7 @@ namespace Compiler.Parser
                             Action = shift
                         });
                     }
-                    else if (item.SubProduction.Production.Identifier == "Initial")
+                    else if (item.SubProduction.Production.Identifier == ParserConstants.Initial)
                     {
                         TerminalExpressionDefinition expressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition;
                         expressionDefinition = expressionDefinition ?? new TerminalExpressionDefinition() { TokenType = TokenType.EndMarker };

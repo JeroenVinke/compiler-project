@@ -8,7 +8,7 @@ namespace Compiler.Parser.Rules
     {
         public static void Initialize(ref Grammar grammar)
         {
-            grammar.Add(new Production("Declaration",
+            grammar.Add(new Production(ParserConstants.Declaration,
                 new SubProduction
                 (
                     new List<ExpressionDefinition>
@@ -17,16 +17,16 @@ namespace Compiler.Parser.Rules
                         new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
                         new SemanticActionDefinition((ParsingNode node) =>
                         {
-                            string type = node.GetAttributeForKey<WordToken>("TypeDeclaration", "token").Lexeme;
+                            string type = node.GetAttributeForKey<WordToken>(ParserConstants.TypeDeclaration, ParserConstants.Token).Lexeme;
 
-                            SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
-                            string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
+                            SymbolTable symbolTable = node.FirstParentWithAttribute(ParserConstants.SymTable).GetAttribute<SymbolTable>(ParserConstants.SymTable);
+                            string key = node.GetAttributeForKey<WordToken>("Identifier", ParserConstants.Token).Lexeme;
                             SymbolTableEntryType symbolEntryType = SymbolTable.StringToSymbolTableEntryType(type);
                             SymbolTableEntry entry = symbolTable.Create(key, symbolEntryType);
 
                             DeclarationASTNode syntaxTreeNode = new DeclarationASTNode();
                             syntaxTreeNode.SymbolTableEntry = entry;
-                            node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                            node.Attributes.Add(ParserConstants.SyntaxTreeNode, syntaxTreeNode);
                         })
                     }
                 )

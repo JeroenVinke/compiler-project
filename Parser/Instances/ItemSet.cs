@@ -185,7 +185,7 @@ namespace Compiler.Parser.Instances
         public List<Item> NonKernelItems()
         {
             List<Item> result = this.Where(x => x.DotIndex == 0
-                && x.SubProduction.Production.Identifier != "Initial").ToList();
+                && x.SubProduction.Production.Identifier != ParserConstants.Initial).ToList();
 
             return result;
         }
@@ -194,9 +194,9 @@ namespace Compiler.Parser.Instances
         {
             List<Item> result = this.Except(NonKernelItems()).ToList();
 
-            if (this.Any(x => x.SubProduction.Production.Identifier == "Initial"))
+            if (this.Any(x => x.SubProduction.Production.Identifier == ParserConstants.Initial))
             {
-                result.Add(this.First(x => x.SubProduction.Production.Identifier == "Initial"));
+                result.Add(this.First(x => x.SubProduction.Production.Identifier == ParserConstants.Initial));
             }
 
             return result;

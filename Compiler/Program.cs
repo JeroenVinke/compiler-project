@@ -17,6 +17,7 @@ namespace Compiler
             BottomUpParser parser = new BottomUpParser(analyzer);
 
             parser
+                .OutputGrammar()
                 .Parse()
                 .OutputDebugFiles()
                 .OutputIL();

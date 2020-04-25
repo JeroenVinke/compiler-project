@@ -1,6 +1,6 @@
-﻿using Compiler.Common.Instructions;
-using Compiler.Parser.Common;
+﻿using Compiler.Parser.Common;
 using System.Collections.Generic;
+using Compiler.Parser.Instructions;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {

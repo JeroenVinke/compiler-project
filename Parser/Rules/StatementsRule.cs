@@ -13,21 +13,21 @@ namespace Compiler.Parser.Rules
 
         private static Production Statements()
         {
-            return new Production("Statements",
+            return new Production(ParserConstants.Statements,
                 new List<SubProduction>
                 {
                     new SubProduction
                     (
                         new List<ExpressionDefinition>
                         {
-                            new NonTerminalExpressionDefinition { Identifier = "Statements" },
-                            new NonTerminalExpressionDefinition { Identifier = "Statement" },
+                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statements },
+                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
                             new SemanticActionDefinition((ParsingNode node) =>
                             {
                                 StatementsASTNode astNode = new StatementsASTNode();
-                                astNode.Statements.AddRange(node.GetAttributeForKey<StatementsASTNode>("Statements", "syntaxtreenodes").Statements);
-                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
-                                node.Attributes.Add("syntaxtreenodes", astNode);
+                                astNode.Statements.AddRange(node.GetAttributeForKey<StatementsASTNode>(ParserConstants.Statements, ParserConstants.SyntaxTreeNodes).Statements);
+                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>(ParserConstants.Statement, ParserConstants.SyntaxTreeNode));
+                                node.Attributes.Add(ParserConstants.SyntaxTreeNodes, astNode);
                             })
                         }
                     ),
@@ -35,12 +35,12 @@ namespace Compiler.Parser.Rules
                     (
                         new List<ExpressionDefinition>
                         {
-                            new NonTerminalExpressionDefinition { Identifier = "Statement" },
+                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
                             new SemanticActionDefinition((ParsingNode node) =>
                             {
                                 StatementsASTNode astNode = new StatementsASTNode();
-                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>("Statement", "syntaxtreenode"));
-                                node.Attributes.Add("syntaxtreenodes", astNode);
+                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>(ParserConstants.Statement, ParserConstants.SyntaxTreeNode));
+                                node.Attributes.Add(ParserConstants.SyntaxTreeNodes, astNode);
                             })
                         }
                     ),
@@ -51,7 +51,7 @@ namespace Compiler.Parser.Rules
                             new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
                             new SemanticActionDefinition((ParsingNode node) =>
                             {
-                                node.Attributes.Add("syntaxtreenodes", new StatementsASTNode());
+                                node.Attributes.Add(ParserConstants.SyntaxTreeNodes, new StatementsASTNode());
                             })
                         }
                     )

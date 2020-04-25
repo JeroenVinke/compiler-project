@@ -1,4 +1,6 @@
-﻿namespace Compiler.Parser.Common
+﻿using Compiler.Parser.Common;
+
+namespace Compiler.Parser.Instructions
 {
     public class JumpInstruction : Instruction
     {

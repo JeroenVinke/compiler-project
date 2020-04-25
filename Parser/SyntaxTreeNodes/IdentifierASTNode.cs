@@ -1,5 +1,7 @@
 ﻿using Compiler.Common;
 using Compiler.Parser.Common;
+using Compiler.Parser.Instructions;
+using System.Collections.Generic;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
@@ -11,7 +13,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
         {
         }
 
-        public override Address GenerateCode(System.Collections.Generic.List<Instruction> instructions)
+        public override Address GenerateCode(List<Instruction> instructions)
         {
             return SymbolTableEntry.Address;
         }

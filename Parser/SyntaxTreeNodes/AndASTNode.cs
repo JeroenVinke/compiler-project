@@ -1,4 +1,4 @@
-﻿using Compiler.Common.Instructions;
+﻿using Compiler.Parser.Instructions;
 using Compiler.Parser.Common;
 using System.Collections.Generic;
 

@@ -1,6 +1,7 @@
 ﻿using Compiler.Parser.Common;
 using System.Collections.Generic;
 using System.Linq;
+using Compiler.Parser.Instructions;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
@@ -22,7 +23,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
                 if (previous != null && previous.Backpatch(label))
                 {
-                    instructions.Add(label);
+                    instructions.Add(new LabelInstruction(label));
                 }
 
                 statement.GenerateCode(instructions);

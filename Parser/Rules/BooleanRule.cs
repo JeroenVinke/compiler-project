@@ -9,7 +9,7 @@ namespace Compiler.Parser.Rules
     {
         public static void Initialize(ref Grammar grammar)
         {
-            grammar.Add(new Production("Boolean",
+            grammar.Add(new Production(ParserConstants.Boolean,
                 new List<SubProduction>
                 {
                     BooleanRules(),
@@ -24,12 +24,12 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "Factor" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Factor },
                     new TerminalExpressionDefinition { TokenType = TokenType.RelOp },
-                    new NonTerminalExpressionDefinition { Key = "Factor2", Identifier = "Factor" },
+                    new NonTerminalExpressionDefinition { Key = "Factor2", Identifier = ParserConstants.Factor },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        string relOpToken = node.GetAttributeForKey<WordToken>("RelOp", "token").Lexeme;
+                        string relOpToken = node.GetAttributeForKey<WordToken>("RelOp", ParserConstants.Token).Lexeme;
                         RelOp relOp;
 
                         if (relOpToken == "==")
@@ -61,11 +61,11 @@ namespace Compiler.Parser.Rules
                             throw new Exception();
                         }
 
-                        FactorASTNode left = node.GetAttributeForKey<FactorASTNode>("Factor", "syntaxtreenode");
-                        FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("Factor2", "syntaxtreenode");
+                        FactorASTNode left = node.GetAttributeForKey<FactorASTNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode);
+                        FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("Factor2", ParserConstants.SyntaxTreeNode);
                         RelOpASTNode syntaxTreeNode = new RelOpASTNode(left, relOp, right);
 
-                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, syntaxTreeNode);
                     })
                 }
             );
@@ -80,9 +80,9 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.Boolean },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        bool value = node.GetAttributeForKey<WordToken>("Boolean", "token").Lexeme.ToLower() == "false" ? false : true;
+                        bool value = node.GetAttributeForKey<WordToken>(ParserConstants.Boolean, ParserConstants.Token).Lexeme.ToLower() == "false" ? false : true;
 
-                        node.Attributes.Add("syntaxtreenode", new BooleanASTNode(value) { });
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, new BooleanASTNode(value) { });
                     })
                 }
             );

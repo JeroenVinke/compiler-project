@@ -1,6 +1,6 @@
 ﻿namespace Compiler.Parser.Common
 {
-    public class Label : Instruction
+    public class Label
     {
         public static int MaxLabelId = 0;
         public int LabelId = 0;
@@ -10,14 +10,9 @@
             LabelId = ++MaxLabelId;
         }
 
-        public override string GenerateCodeString()
-        {
-            return $"label L{LabelId}:";
-        }
-
         public override string ToString()
         {
-            return $"label L{LabelId}";
+            return "L" + LabelId;
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Compiler.Parser
             }
 
             // when last
-            if (Identifier == "Initial")
+            if (Identifier == ParserConstants.Initial)
             {
                 result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EndMarker });
             }

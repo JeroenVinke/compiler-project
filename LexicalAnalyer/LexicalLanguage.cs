@@ -19,9 +19,11 @@ namespace Compiler.LexicalAnalyer
             lexLanguage.Add("\\|\\|#", (string value) => { return new WordToken { Type = TokenType.Or }; });
             lexLanguage.Add("&&#", (string value) => { return new WordToken { Type = TokenType.And }; });
             lexLanguage.Add("\\+#", (string value) => { return new WordToken { Type = TokenType.Plus }; });
+            lexLanguage.Add(",#", (string value) => { return new WordToken { Type = TokenType.Comma }; });
             lexLanguage.Add("\\-#", (string value) => { return new WordToken { Type = TokenType.Minus }; });
             lexLanguage.Add("\\*#", (string value) => { return new WordToken { Type = TokenType.Multiplication }; });
             lexLanguage.Add("\\/#", (string value) => { return new WordToken { Type = TokenType.Division }; });
+            lexLanguage.Add("class#", (string value) => { return new WordToken { Type = TokenType.Class }; });
             lexLanguage.Add("if#", (string value) => { return new WordToken { Type = TokenType.If }; });
             lexLanguage.Add("else#", (string value) => { return new WordToken { Type = TokenType.Else }; });
             lexLanguage.Add("while#", (string value) => { return new WordToken { Type = TokenType.While }; });

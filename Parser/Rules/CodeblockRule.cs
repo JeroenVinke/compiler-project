@@ -1,5 +1,4 @@
 ﻿using Compiler.Common;
-using Compiler.Parser;
 using Compiler.Parser.SyntaxTreeNodes;
 using System.Collections.Generic;
 
@@ -9,7 +8,7 @@ namespace Compiler.Parser.Rules
     {
         public static void Initialize(ref Grammar grammar)
         {
-            grammar.Add(new Production("Codeblock",
+            grammar.Add(new Production(ParserConstants.Codeblock,
                 new SubProduction
                 (
                     new List<ExpressionDefinition>
@@ -17,20 +16,20 @@ namespace Compiler.Parser.Rules
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketOpen },
                         new SemanticActionDefinition((ParsingNode node) =>
                         {
-                            var symbolTableNode = node.FirstParentWithAttribute("symtable");
+                            var symbolTableNode = node.FirstParentWithAttribute(ParserConstants.SymTable);
 
                             if (symbolTableNode == null)
                             {
-                                node.Attributes["symtable"] = node.Parser.RootSymbolTable;
+                                node.Attributes[ParserConstants.SymTable] = node.Parser.RootSymbolTable;
                             }
                             else
                             {
-                                node.Attributes["symtable"] = symbolTableNode.GetAttribute<SymbolTable>("symtable").CreateChild();
+                                node.Attributes[ParserConstants.SymTable] = symbolTableNode.GetAttribute<SymbolTable>(ParserConstants.SymTable).CreateChild();
                             }
                         }),
-                        new NonTerminalExpressionDefinition { Identifier = "Statements" },
+                        new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statements },
                         new SemanticActionDefinition((ParsingNode node) => {
-                            node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<StatementsASTNode>("Statements", "syntaxtreenodes"));
+                            node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<StatementsASTNode>(ParserConstants.Statements, ParserConstants.SyntaxTreeNodes));
                         }),
                         new TerminalExpressionDefinition { TokenType = TokenType.BracketClose }
                     }

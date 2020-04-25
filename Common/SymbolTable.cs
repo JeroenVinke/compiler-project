@@ -65,6 +65,17 @@ namespace Compiler.Common
             return st;
         }
 
+        public SymbolTableEntry GetOrThrow(string key, out SymbolTableEntry entry)
+        {
+            if (Get(key, out SymbolTableEntry result))
+            {
+                entry = result;
+                return entry;
+            }
+
+            throw new Exception($"{key} not found in the symbol table");
+        }
+
         internal SymbolTableEntryType GetEntryType(Token n)
         {
             //if (n == Word.Integer)
@@ -89,7 +100,7 @@ namespace Compiler.Common
 
         public static SymbolTableEntryType StringToSymbolTableEntryType(string type)
         {
-            switch (type)
+            switch (type.ToLower())
             {
                 case "string":
                     return SymbolTableEntryType.String;
@@ -97,6 +108,8 @@ namespace Compiler.Common
                     return SymbolTableEntryType.Integer;
                 case "bool":
                     return SymbolTableEntryType.Bool;
+                case "void":
+                    return SymbolTableEntryType.Void;
             }
 
             throw new Exception("Unknown entry type " + type);
@@ -104,14 +117,23 @@ namespace Compiler.Common
 
         public string ToDot()
         {
-            string result = Id + "1111 [shape=plaintext,label=<<table>";
+            string result = "";
 
-            foreach (SymbolTableEntry entry in Entries)
+            if (Entries.Count > 0)
             {
-                result += "<tr><td>" + entry.Name + "</td><td>" + Enum.GetName(typeof(SymbolTableEntryType), entry.Type) + "</td><td>" + entry.Address.ToString() + "</td></tr>";
-            }
+                result = Id + "1111 [shape=plaintext,label=<<table>";
 
-            result += "</table>>]\r\n";
+                foreach (SymbolTableEntry entry in Entries)
+                {
+                    result += "<tr><td>" + entry.Name + "</td><td>" + Enum.GetName(typeof(SymbolTableEntryType), entry.Type) + "</td><td>" + entry.Address.ToString() + "</td></tr>";
+                }
+
+                result += "</table>>]\r\n";
+            }
+            else
+            {
+                result = Id + "1111\r\n";
+            }
 
             foreach(SymbolTable child in Children)
             {

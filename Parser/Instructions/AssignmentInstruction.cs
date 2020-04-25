@@ -1,6 +1,6 @@
 ﻿using Compiler.Parser.Common;
 
-namespace Compiler.Common.Instructions
+namespace Compiler.Parser.Instructions
 {
     public class AssignmentInstruction : Instruction
     {

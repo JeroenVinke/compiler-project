@@ -9,7 +9,7 @@ namespace Compiler.Parser.Rules
     {
         public static void Initialize(ref Grammar grammar)
         {
-            grammar.Add(new Production("BooleanExpression",
+            grammar.Add(new Production(ParserConstants.BooleanExpression,
                 new List<SubProduction>
                 {
                     BooleanRule(),
@@ -28,7 +28,7 @@ namespace Compiler.Parser.Rules
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.EmptyString },
                     new SemanticActionDefinition((ParsingNode node) => {
-                        node.Attributes.Add("syntaxtreenode", node.GetAttribute<BooleanExpressionASTNode>("inh"));
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttribute<BooleanExpressionASTNode>("inh"));
                     })
                 }
             );
@@ -40,9 +40,9 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "Boolean" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Boolean },
                     new SemanticActionDefinition((ParsingNode node) => {
-                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<SyntaxTreeNode>("Boolean", "syntaxtreenode"));
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.Boolean, ParserConstants.SyntaxTreeNode));
                     })
                 }
             );
@@ -54,16 +54,16 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
                     new TerminalExpressionDefinition { TokenType = TokenType.Or },
-                    new NonTerminalExpressionDefinition { Key = "BooleanExpression2", Identifier = "BooleanExpression" },
+                    new NonTerminalExpressionDefinition { Key = "BooleanExpression2", Identifier = ParserConstants.BooleanExpression },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", "syntaxtreenode");
+                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>(ParserConstants.BooleanExpression, ParserConstants.SyntaxTreeNode);
+                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", ParserConstants.SyntaxTreeNode);
 
                         OrASTNode syntaxTreeNode = new OrASTNode(left, right);
-                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, syntaxTreeNode);
                     })
                 }
             );
@@ -75,16 +75,16 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
                     new TerminalExpressionDefinition { TokenType = TokenType.And },
-                    new NonTerminalExpressionDefinition { Identifier = "BooleanExpression" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", "syntaxtreenode");
-                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", "syntaxtreenode");
+                        BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>(ParserConstants.BooleanExpression, ParserConstants.SyntaxTreeNode);
+                        BooleanExpressionASTNode right = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression2", ParserConstants.SyntaxTreeNode);
 
                         AndASTNode syntaxTreeNode = new AndASTNode(left, right);
-                        node.Attributes.Add("syntaxtreenode", syntaxTreeNode);
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, syntaxTreeNode);
                     })
                 }
             );

@@ -1,5 +1,6 @@
 ﻿using Compiler.Parser.Common;
 using System;
+using System.Collections.Generic;
 
 namespace Compiler.Common
 {
@@ -7,6 +8,8 @@ namespace Compiler.Common
     {
         public string Name { get; set; }
         public SymbolTableEntryType Type { get; set; }
+        public SymbolTableEntry SpecificType { get; set; }
+        public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
         public object Value { get; set; }
         public int Id { get; set; }
         public static int MaxId { get; set; } = 0;
@@ -24,6 +27,8 @@ namespace Compiler.Common
             }
         }
 
+        public Label Label { get; set; }
+
         public SymbolTableEntry()
         {
             Id = MaxId;
@@ -38,6 +43,11 @@ namespace Compiler.Common
         public string GetTypeAsString()
         {
             return Enum.GetName(typeof(SymbolTableEntryType), Type);
+        }
+
+        public T GetMetadata<T>(string key)
+        {
+            return (T)Metadata[key]; 
         }
     }
 }

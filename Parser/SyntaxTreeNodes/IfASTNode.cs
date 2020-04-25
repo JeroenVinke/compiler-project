@@ -1,5 +1,6 @@
 ﻿using Compiler.Parser.Common;
 using System.Collections.Generic;
+using Compiler.Parser.Instructions;
 using System.Linq;
 
 namespace Compiler.Parser.SyntaxTreeNodes
@@ -18,11 +19,11 @@ namespace Compiler.Parser.SyntaxTreeNodes
             Condition.GenerateCode(instructions);
 
             Label trueLabel = new Label();
-            instructions.Add(trueLabel);
+            instructions.Add(new LabelInstruction(trueLabel));
             Body.GenerateCode(instructions);
 
             Label falseLabel = new Label();
-            instructions.Add(falseLabel);
+            instructions.Add(new LabelInstruction(falseLabel));
 
             Condition.Backpatch(trueLabel, falseLabel);
 

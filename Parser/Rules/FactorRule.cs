@@ -1,6 +1,5 @@
 ﻿using Compiler.Common;
 using Compiler.Parser.SyntaxTreeNodes;
-using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -10,16 +9,15 @@ namespace Compiler.Parser.Rules
         public static void Initialize(ref Grammar grammar)
         {
             grammar.Add(Factor());
-            grammar.Add(new Production("Identifier", IdentifierRule()));
+            grammar.Add(new Production(ParserConstants.Identifier, IdentifierRule()));
         }
 
         private static Production Factor()
         {
-            return new Production("Factor",
+            return new Production(ParserConstants.Factor,
                 new List<SubProduction>
                 {
                     IdentifierRule(),
-                    //IntegerRule(),
                     ParenthesisRule(),
                     NumExpressionRule()
                 }
@@ -35,21 +33,14 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        SymbolTable symbolTable = node.FirstParentWithAttribute("symtable").GetAttribute<SymbolTable>("symtable");
-                        string key = node.GetAttributeForKey<WordToken>("Identifier", "token").Lexeme;
+                        SymbolTable symbolTable = node.CurrentSymbolTable;
+                        string key = node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token).Lexeme;
 
-                        SymbolTableEntry entry = null;
-                        if (symbolTable.Get(key, out entry))
-                        {
-                            node.Attributes.Add("symboltableentry", entry);
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
+                        SymbolTableEntry entry = symbolTable.GetOrThrow(key, out entry);
 
-                        node.Attributes.Add("token", node.GetAttributeForKey<WordToken>("Identifier", "token"));
-                        node.Attributes.Add("syntaxtreenode", new IdentifierASTNode() { SymbolTableEntry = entry });
+                        node.Attributes.Add(ParserConstants.SymbolTableEntry, entry);
+                        node.Attributes.Add(ParserConstants.Token, node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token));
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, new IdentifierASTNode() { SymbolTableEntry = entry });
                     })
                 }
             );
@@ -61,10 +52,10 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = "NumericExpression" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.NumericExpression },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("NumericExpression", "syntaxtreenode"));
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<NumericExpressionASTNode>(ParserConstants.NumericExpression, ParserConstants.SyntaxTreeNode));
                     })
                 }
             );
@@ -77,10 +68,10 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
-                    new NonTerminalExpressionDefinition { Identifier = "Factor" },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Factor },
                     new SemanticActionDefinition((ParsingNode node) =>{
-                        node.Attributes.Add("syntaxtreenode", node.GetAttributeForKey<NumericExpressionASTNode>("Factor", "syntaxtreenode"));
-                        node.Attributes.Add("value", node.GetAttributeForKey<NumericExpressionASTNode>("Factor", "value"));
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<NumericExpressionASTNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode));
+                        node.Attributes.Add("value", node.GetAttributeForKey<NumericExpressionASTNode>(ParserConstants.Factor, "value"));
                     }),
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose }
                 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Compiler.Common;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Compiler.Parser
@@ -21,6 +23,46 @@ namespace Compiler.Parser
             {
                 parent = value;
                 value.Children.Insert(0, this);
+            }
+        }
+
+        private SymbolTable _currentSymbolTable;
+        public SymbolTable CurrentSymbolTable
+        {
+            get
+            {
+                if (_currentSymbolTable == null)
+                {
+                    _currentSymbolTable = FirstParentWithAttribute(ParserConstants.SymTable)?.GetAttribute<SymbolTable>(ParserConstants.SymTable);
+
+                    if (_currentSymbolTable == null)
+                    {
+                        _currentSymbolTable = Parser.RootSymbolTable;
+                    }
+                }
+
+                return _currentSymbolTable;
+            }
+        }
+
+        private SymbolTable _childSymbolTable;
+        public SymbolTable ChildSymbolTable
+        {
+            get
+            {
+                if (_childSymbolTable == null)
+                {
+                    SymbolTable symbolTable = FirstParentWithAttribute(ParserConstants.SymTable)?.GetAttribute<SymbolTable>(ParserConstants.SymTable);
+
+                    if (symbolTable == null)
+                    {
+                        symbolTable = Parser.RootSymbolTable;
+                    }
+
+                    _childSymbolTable = symbolTable.CreateChild();
+                }
+
+                return _childSymbolTable;
             }
         }
 
@@ -132,6 +174,11 @@ namespace Compiler.Parser
             }
 
             return result;
+        }
+
+        internal T GetAttributeForKey<T>(object identifier, string symbolTableEntry)
+        {
+            throw new NotImplementedException();
         }
     }
 }

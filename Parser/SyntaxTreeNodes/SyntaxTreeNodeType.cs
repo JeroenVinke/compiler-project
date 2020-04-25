@@ -19,6 +19,12 @@
         Number,
         RelOp,
         If,
-        IfElse
+        IfElse,
+        Class,
+        Classes,
+        Type,
+        Function,
+        FunctionCall,
+        FunctionDeclarationArgument
     }
 }

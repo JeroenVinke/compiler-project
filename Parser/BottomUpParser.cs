@@ -1,7 +1,7 @@
 ﻿using Compiler.Common;
 using Compiler.LexicalAnalyer;
-using Compiler.Parser.Common;
 using Compiler.Parser.Instances;
+using Compiler.Parser.Instructions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +22,7 @@ namespace Compiler.Parser
         private List<ItemSet> CanonicalSets { get; set; }
         private List<ParsingNode> ParsingNodes = new List<ParsingNode>();
         private ItemSet Initial { get; set; }
+
         public BottomUpParser() : this(null)
         {
         }
@@ -30,7 +31,7 @@ namespace Compiler.Parser
         {
             LexicalAnalyzer = lexicalAnalyzer;
 
-            SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == "Initial").First();
+            SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == ParserConstants.Initial).First();
             GrammarSymbols = Grammar.Instance.Symbols();
 
             Item startingItem = new Item(startingRule, new List<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
@@ -56,7 +57,7 @@ namespace Compiler.Parser
 
             ParsingNodes.Last().EvaluateAttributes();
 
-            TopLevelAST = ParsingNodes.Last().GetAttribute<SyntaxTreeNode>("syntaxtreenode");
+            TopLevelAST = ParsingNodes.Last().GetAttribute<SyntaxTreeNode>(ParserConstants.SyntaxTreeNode);
 
             return this;
         }
@@ -122,6 +123,18 @@ namespace Compiler.Parser
             }
         }
 
+        public BottomUpParser OutputGrammar()
+        {
+            string result = "";
+            foreach (Production production in Grammar.Instance)
+            {
+                result += production + Environment.NewLine;
+            }
+            File.WriteAllText("grammar.txt", result);
+
+            return this;
+        }
+
         public BottomUpParser OutputDebugFiles()
         {
             string result = "";
@@ -130,11 +143,13 @@ namespace Compiler.Parser
             result += "}\r\n";
             File.WriteAllText("automaton.txt", result);
 
-            result = "";
-            result += "digraph B {\r\n";
-            result += ParsingTable.ToDot(CanonicalSets, GrammarSymbols);
-            result += "}\r\n";
-            File.WriteAllText("parsingtable.txt", result);
+            //result = "";
+            //result += "digraph B {\r\n";
+            //result += ParsingTable.ToDot(CanonicalSets, GrammarSymbols);
+            //result += "}\r\n";
+            //File.WriteAllText("parsingtable.txt", result);
+
+            OutputGrammar();
 
             result = "";
             result += "digraph C {\r\n";
@@ -148,6 +163,12 @@ namespace Compiler.Parser
                 result += production + Environment.NewLine;
             }
             File.WriteAllText("grammar.txt", result);
+
+            result = "";
+            result += "digraph E {\r\n";
+            result += RootSymbolTable.ToDot();
+            result += "}\r\n";
+            File.WriteAllText("symboltable.txt", result);
 
             return this;
         }
@@ -273,7 +294,7 @@ namespace Compiler.Parser
                 SubProduction = arg3.SubProduction
             };
 
-            parsingNode.Attributes.Add("token", Current);
+            parsingNode.Attributes.Add(ParserConstants.Token, Current);
 
             ParsingNodes.Add(parsingNode);
 
