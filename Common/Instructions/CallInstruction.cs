@@ -1,6 +1,4 @@
-﻿using Compiler.Parser.Common;
-
-namespace Compiler.Parser.Instructions
+﻿namespace Compiler.Common.Instructions
 {
     public class CallInstruction : Instruction
     {

@@ -17,16 +17,19 @@ namespace Compiler.Parser.Instances
         public List<ExpressionDefinition> PropogatedLookaheads { get; set; } = new List<ExpressionDefinition>();
 
         private ItemSet _closure = null;
-
-        public Item(List<ExpressionDefinition> expressions, List<TerminalExpressionDefinition> lookahead = null) : base(expressions)
-        {
-            Lookahead = lookahead ?? new List<TerminalExpressionDefinition>();
-        }
+        public int Id { get; set; }
+        public static int MaxId = 0;
 
         public Item(SubProduction subProduction, List<TerminalExpressionDefinition> lookahead = null)
         {
             SubProduction = subProduction;
             Lookahead = lookahead ?? new List<TerminalExpressionDefinition>();
+            Id = MaxId++;
+
+            if (Id == 3974)
+            {
+                ;
+            }
 
             foreach (ExpressionDefinition expressionDefinition in subProduction)
             {
@@ -57,7 +60,7 @@ namespace Compiler.Parser.Instances
                     {
                         foreach (SubProduction subProduction in production)
                         {
-                            List<ExpressionDefinition> tail = WithoutActions().Skip(DotIndex).ToList();
+                            List<ExpressionDefinition> tail = WithoutActions().Skip(DotIndex + 1).ToList();
 
                             if (Lookahead != null)
                             {
@@ -66,10 +69,14 @@ namespace Compiler.Parser.Instances
 
                             foreach (TerminalExpressionDefinition ted in First(tail))
                             {
-                                if (!_closure.Any(x => x.SubProduction == subProduction && x.DotIndex == 0))
-                                {
-                                    _closure.Add(new Item(subProduction, new List<TerminalExpressionDefinition> { ted }));
-                                }
+                                Item itemToAdd = new Item(subProduction, new List<TerminalExpressionDefinition> { ted });
+                                _closure.Add(itemToAdd);
+
+                                //if (!_closure.Any(x => x.SubProduction == subProduction && x.DotIndex == 0))
+                                //{
+                                //    Item itemToAdd = new Item(subProduction, new List<TerminalExpressionDefinition> { ted });
+                                //    _closure.Add(itemToAdd);
+                                //}
                             }
                         }
                     }
@@ -132,14 +139,18 @@ namespace Compiler.Parser.Instances
 
         public Item Clone()
         {
-            Item item = new Item(SubProduction, Lookahead);
+            Item item = new Item(SubProduction, Lookahead.ToList());
+            if (item.Id == 1247)
+            {
+                ;
+            }
             item.DotIndex = DotIndex;
             return item;
         }
 
         public string ToDot()
         {
-            string result = $"{SubProduction.Production.Identifier} -> ";
+            string result = $"({Id}) {SubProduction.Production.Identifier} -> ";
 
             foreach(ExpressionDefinition expressionDefinition in this)
             {

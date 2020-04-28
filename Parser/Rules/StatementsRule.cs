@@ -20,26 +20,13 @@ namespace Compiler.Parser.Rules
                     (
                         new List<ExpressionDefinition>
                         {
+                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
                             new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statements },
-                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
                             new SemanticActionDefinition((ParsingNode node) =>
                             {
                                 StatementsASTNode astNode = new StatementsASTNode();
+                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>(ParserConstants.Statement, ParserConstants.SyntaxTreeNode));
                                 astNode.Statements.AddRange(node.GetAttributeForKey<StatementsASTNode>(ParserConstants.Statements, ParserConstants.SyntaxTreeNodes).Statements);
-                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>(ParserConstants.Statement, ParserConstants.SyntaxTreeNode));
-                                node.Attributes.Add(ParserConstants.SyntaxTreeNodes, astNode);
-                            })
-                        }
-                    ),
-                    new SubProduction
-                    (
-                        new List<ExpressionDefinition>
-                        {
-                            new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
-                            new SemanticActionDefinition((ParsingNode node) =>
-                            {
-                                StatementsASTNode astNode = new StatementsASTNode();
-                                astNode.Statements.Add(node.GetAttributeForKey<StatementASTNode>(ParserConstants.Statement, ParserConstants.SyntaxTreeNode));
                                 node.Attributes.Add(ParserConstants.SyntaxTreeNodes, astNode);
                             })
                         }

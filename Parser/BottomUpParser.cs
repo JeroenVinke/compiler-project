@@ -1,7 +1,7 @@
 ﻿using Compiler.Common;
+using Compiler.Common.Instructions;
 using Compiler.LexicalAnalyer;
 using Compiler.Parser.Instances;
-using Compiler.Parser.Instructions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +22,20 @@ namespace Compiler.Parser
         private List<ItemSet> CanonicalSets { get; set; }
         private List<ParsingNode> ParsingNodes = new List<ParsingNode>();
         private ItemSet Initial { get; set; }
+
+        private List<Instruction> _il;
+        public List<Instruction> IL
+        {
+            get
+            {
+                if(_il == null)
+                {
+                    _il = new List<Instruction>();
+                    TopLevelAST.GenerateCode(_il);
+                }
+                return _il;
+            }
+        }
 
         public BottomUpParser() : this(null)
         {
@@ -62,16 +76,24 @@ namespace Compiler.Parser
             return this;
         }
 
-
-
         private void PropogateLookaheads(List<ExpressionDefinition> symbols)
         {
             List<LookaheadPropogation> propogations = new List<LookaheadPropogation>();
 
             foreach (ItemSet set in CanonicalSets)
             {
+                if (set.Id == 17233)
+                {
+                    ;
+                }
                 foreach (ExpressionDefinition ted in symbols)
                 {
+                    if (set.Id == 14031
+                        && ted is NonTerminalExpressionDefinition nted
+                        && nted.Identifier == "Identifier")
+                    {
+                        ;
+                    }
                     propogations.AddRange(set.DetermineLookaheads(ted));
                 }
             }
@@ -84,6 +106,11 @@ namespace Compiler.Parser
                 {
                     foreach (Item item in set.KernelItems())
                     {
+                        if (set.Id == 17233)
+                        {
+                            ;
+                        }
+
                         LookaheadPropogation propogation = propogations.FirstOrDefault(x => x.ToSet == set && x.ToItem.IsEqualTo(item));
                         if (propogation != null)
                         {
@@ -92,6 +119,10 @@ namespace Compiler.Parser
                             if (lookaheads.Count > 0)
                             {
                                 addedLookahead = true;
+                                if (item.Id == 1247)
+                                {
+                                    ;
+                                }
                                 item.Lookahead.AddRange(lookaheads);
                             }
                         }
@@ -104,23 +135,67 @@ namespace Compiler.Parser
         {
             while (true)
             {
-                ActionParsingTableEntry entry = ParsingTable.FirstOrDefault(x => x is ActionParsingTableEntry a
-                    && a.ItemSet == Stack.Last()
-                    && a.ExpressionDefinition.TokenType == Current.Type) as ActionParsingTableEntry;
+                ActionParsingTableEntry entry = GetEntry();
 
-                if (entry == null)
+                if (!entry.Action(entry))
                 {
+                    break;
+                }
+            }
+        }
 
-                    Error();
+        private ActionParsingTableEntry GetEntry()
+        {
+            List<ActionParsingTableEntry> entries = ParsingTable.Where(x => x is ActionParsingTableEntry a
+                       && a.ItemSet == Stack.Last()
+                       && a.ExpressionDefinition.TokenType == Current.Type).Cast<ActionParsingTableEntry>().ToList();
+
+            if (entries.Count == 1)
+            {
+                return entries.First();
+            }
+            else if (entries.Count > 1)
+            {
+                // reduce/reduce of shift/reduce conflict
+
+                List<ActionParsingTableEntry> entriesForLookahead = entries.Where(x => x.Items.Any(y => y.Lookahead.Any(z => z.TokenType == Current.Type))).ToList(); ;
+
+                if (entriesForLookahead.Count == 1)
+                {
+                    return entriesForLookahead.First();
+                }
+
+                if (entries.Count == 1)
+                {
+                    return entries.First();
+                }
+                else if (entries.Count > 1)
+                {
+                    return ResolveShiftReduceConflicts(entries);
                 }
                 else
                 {
-                    if (!entry.Action(entry.ItemSet, entry.ExpressionDefinition))
-                    {
-                        break;
-                    }
+                    Error();
                 }
             }
+            else
+            {
+                Error();
+            }
+
+            return null;
+        }
+
+        private ActionParsingTableEntry ResolveShiftReduceConflicts(List<ActionParsingTableEntry> entries)
+        {
+            if (entries.Any(x => x.ExpressionDefinition.TokenType == TokenType.Else
+                                && x.ActionDescription == "s"))
+            {
+                return entries.First(x => x.ExpressionDefinition.TokenType == TokenType.Else
+                                && x.ActionDescription == "s");
+            }
+
+            return null;
         }
 
         public BottomUpParser OutputGrammar()
@@ -135,13 +210,19 @@ namespace Compiler.Parser
             return this;
         }
 
-        public BottomUpParser OutputDebugFiles()
+        public BottomUpParser OutputAutomaton()
         {
             string result = "";
             result += "digraph A {\r\n";
             result += GetAutomaton();
             result += "}\r\n";
             File.WriteAllText("automaton.txt", result);
+
+            return this;
+        }
+
+        public BottomUpParser OutputDebugFiles()
+        {
 
             //result = "";
             //result += "digraph B {\r\n";
@@ -150,8 +231,9 @@ namespace Compiler.Parser
             //File.WriteAllText("parsingtable.txt", result);
 
             OutputGrammar();
+            OutputAutomaton();
 
-            result = "";
+            string result = "";
             result += "digraph C {\r\n";
             result += TopLevelAST.ToDot();
             result += "}\r\n";
@@ -175,7 +257,7 @@ namespace Compiler.Parser
 
         public BottomUpParser OutputIL()
         {
-            string result = GetIL();
+            string result = GetILAsString();
 
             File.WriteAllText("IL.txt", result);
             Console.WriteLine(result);
@@ -183,14 +265,16 @@ namespace Compiler.Parser
             return this;
         }
 
-        public string GetIL()
+        public List<Instruction> GetIL()
         {
-            List<Instruction> instructions = new List<Instruction>();
-            TopLevelAST.GenerateCode(instructions);
+            return IL;
+        }
 
+        public string GetILAsString()
+        {
             string result = "";
 
-            foreach (Instruction instruction in instructions)
+            foreach (Instruction instruction in IL)
             {
                 string code = instruction.GenerateCodeString();
 
@@ -205,12 +289,25 @@ namespace Compiler.Parser
 
         private void Error()
         {
+            //Stack.Last().ToString();
             // error recovery routine
-            throw new Exception("TODO: Syntax error");
+            throw new Exception($"Unexpected token {Current.ToString()} while processing rule");
         }
 
-        private bool Reduce(ItemSet arg1, ExpressionDefinition arg3, SubProduction subProduction)
+        private bool Reduce(ActionParsingTableEntry entry)
         {
+            SubProduction subProduction = null;
+
+            if (entry.Items.Count > 1)
+            {
+                Item match = entry.Items.First(x => x.Lookahead.Any(x => x.TokenType == Current.Type));
+                subProduction = match.SubProduction;
+            }
+            else
+            {
+                subProduction = entry.Items.First().SubProduction;
+            }
+
             NonTerminalExpressionDefinition target = new NonTerminalExpressionDefinition {
                 Identifier = subProduction.Production.Identifier
             };
@@ -266,22 +363,42 @@ namespace Compiler.Parser
             }
 
             ItemSet tos = Stack.Last();
-            GotoParsingTableEntry entry = (GotoParsingTableEntry)ParsingTable.First(x => x is GotoParsingTableEntry g
+            List<ParsingTableEntry> entries = ParsingTable.Where(x => x is GotoParsingTableEntry g
                 && g.ItemSet == tos
-                && g.ExpressionDefinition.IsEqualTo(target));
-            Stack.Add(entry.Destination);
+                && g.ExpressionDefinition.IsEqualTo(target)).ToList();
+
+            if (entries.Count > 1)
+            {
+                throw new Exception();
+            }
+
+            GotoParsingTableEntry gotoEntry = (GotoParsingTableEntry)entries.First();
+            Console.WriteLine("DEST " + gotoEntry.Destination.Id+", TARGET " + target.ToString());
+            Stack.Add(gotoEntry.Destination);
 
             return true;
         }
 
-        private bool Accept(ItemSet arg1, ExpressionDefinition arg3)
+        private bool Accept(ActionParsingTableEntry entry)
         {
             return false;
         }
 
-        private bool Shift(ItemSet arg1, ExpressionDefinition arg3)
+        private bool Shift(ActionParsingTableEntry entry)
         {
-            Stack.Add(arg1.Transitions.First(x => x.Key.IsEqualTo(arg3)).Value);
+            ItemSet arg1 = entry.ItemSet;
+            ExpressionDefinition arg3 = entry.ExpressionDefinition;
+
+            List<ItemSet> transitions = arg1.Transitions.Where(x => x.Key.IsEqualTo(arg3)).Select(x => x.Value).ToList();
+
+            if (transitions.Count > 1)
+            {
+                throw new Exception();
+            }
+
+            ItemSet transition = transitions.First();
+            Console.WriteLine("SHIFT " + Current.ToString() + ", to" + transition.Id);
+            Stack.Add(transition);
 
             ParsingNode parsingNode = new ParsingNode()
             {

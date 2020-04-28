@@ -30,5 +30,8 @@
         public const string FunctionDeclarationArguments = "FunctionDeclarationArguments";
         public const string FunctionDeclarationArgument = "FunctionDeclarationArgument";
         public const string Factors = "Factors";
+        public const string NumericFactor = "NumericFactor";
+        public const string NumericTerm = "NumericTerm";
+        public const string BooleanTerm = "BooleanTerm";
     }
 }

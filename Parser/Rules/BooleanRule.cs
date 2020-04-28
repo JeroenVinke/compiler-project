@@ -1,6 +1,5 @@
 ﻿using Compiler.Common;
 using Compiler.Parser.SyntaxTreeNodes;
-using System;
 using System.Collections.Generic;
 
 namespace Compiler.Parser.Rules
@@ -12,64 +11,12 @@ namespace Compiler.Parser.Rules
             grammar.Add(new Production(ParserConstants.Boolean,
                 new List<SubProduction>
                 {
-                    BooleanRules(),
-                    RelopRules()
+                    BooleanRules()
                 }
             ));
         }
 
-        private static SubProduction RelopRules()
-        {
-            return new SubProduction
-            (
-                new List<ExpressionDefinition>
-                {
-                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Factor },
-                    new TerminalExpressionDefinition { TokenType = TokenType.RelOp },
-                    new NonTerminalExpressionDefinition { Key = "Factor2", Identifier = ParserConstants.Factor },
-                    new SemanticActionDefinition((ParsingNode node) =>
-                    {
-                        string relOpToken = node.GetAttributeForKey<WordToken>("RelOp", ParserConstants.Token).Lexeme;
-                        RelOp relOp;
-
-                        if (relOpToken == "==")
-                        {
-                            relOp = RelOp.Equals;
-                        }
-                        else if (relOpToken == "!=")
-                        {
-                            relOp = RelOp.NotEquals;
-                        }
-                        else if (relOpToken == "<")
-                        {
-                            relOp = RelOp.LessThan;
-                        }
-                        else if (relOpToken == "<=")
-                        {
-                            relOp = RelOp.LessOrEqualThan;
-                        }
-                        else if (relOpToken == ">")
-                        {
-                            relOp = RelOp.GreaterThan;
-                        }
-                        else if (relOpToken == ">=")
-                        {
-                            relOp = RelOp.GreaterOrEqualThan;
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
-
-                        FactorASTNode left = node.GetAttributeForKey<FactorASTNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode);
-                        FactorASTNode right = node.GetAttributeForKey<FactorASTNode>("Factor2", ParserConstants.SyntaxTreeNode);
-                        RelOpASTNode syntaxTreeNode = new RelOpASTNode(left, relOp, right);
-
-                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, syntaxTreeNode);
-                    })
-                }
-            );
-        }
+        
 
         private static SubProduction BooleanRules()
         {

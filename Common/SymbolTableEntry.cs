@@ -1,5 +1,4 @@
-﻿using Compiler.Parser.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Compiler.Common

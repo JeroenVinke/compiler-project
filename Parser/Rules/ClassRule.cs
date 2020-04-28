@@ -13,26 +13,26 @@ namespace Compiler.Parser.Rules
                 {
                     new SubProduction(new List<ExpressionDefinition>()
                     {
+                        new NonTerminalExpressionDefinition { Identifier = ParserConstants.Class },
                         new NonTerminalExpressionDefinition { Identifier = ParserConstants.Classes },
-                        new NonTerminalExpressionDefinition { Identifier = ParserConstants.Class },
                         new SemanticActionDefinition((ParsingNode node) =>
                         {
                             ClassesASTNode astNode = new ClassesASTNode();
+                            astNode.Classes.Add(node.GetAttributeForKey<ClassASTNode>(ParserConstants.Class, ParserConstants.SyntaxTreeNode));
                             astNode.Classes.AddRange(node.GetAttributeForKey<ClassesASTNode>(ParserConstants.Classes, ParserConstants.SyntaxTreeNode).Classes);
-                            astNode.Classes.Add(node.GetAttributeForKey<ClassASTNode>(ParserConstants.Class, ParserConstants.SyntaxTreeNode));
                             node.Attributes.Add(ParserConstants.SyntaxTreeNode, astNode);
                         })
                     }),
-                    new SubProduction(new List<ExpressionDefinition>()
-                    {
-                        new NonTerminalExpressionDefinition { Identifier = ParserConstants.Class },
-                        new SemanticActionDefinition((ParsingNode node) =>
-                        {
-                            ClassesASTNode astNode = new ClassesASTNode();
-                            astNode.Classes.Add(node.GetAttributeForKey<ClassASTNode>(ParserConstants.Class, ParserConstants.SyntaxTreeNode));
-                            node.Attributes.Add(ParserConstants.SyntaxTreeNode, astNode);
-                        })
-                    }),
+                    //new SubProduction(new List<ExpressionDefinition>()
+                    //{
+                    //    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Class },
+                    //    new SemanticActionDefinition((ParsingNode node) =>
+                    //    {
+                    //        ClassesASTNode astNode = new ClassesASTNode();
+                    //        astNode.Classes.Add(node.GetAttributeForKey<ClassASTNode>(ParserConstants.Class, ParserConstants.SyntaxTreeNode));
+                    //        node.Attributes.Add(ParserConstants.SyntaxTreeNode, astNode);
+                    //    })
+                    //}),
                     new SubProduction
                     (
                         new List<ExpressionDefinition>

@@ -117,9 +117,8 @@ namespace Compiler.Parser
                 {
                     if (expression.IsEqualTo(this))
                     {
-                        continue;
+                        break;
                     }
-
 
                     if (canContinue)
                     {

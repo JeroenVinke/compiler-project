@@ -1,4 +1,6 @@
-﻿using Compiler.Common;
+﻿using Compiler.CodeGeneration;
+using Compiler.Common;
+using Compiler.Common.Instructions;
 using Compiler.LexicalAnalyer;
 using Compiler.Parser;
 using System;
@@ -18,9 +20,12 @@ namespace Compiler
 
             parser
                 .OutputGrammar()
+                .OutputAutomaton()
                 .Parse()
                 .OutputDebugFiles()
                 .OutputIL();
+
+            LiveVariableAnalysis.Analyse(parser.GetIL());
 
             Console.WriteLine("Done");
 

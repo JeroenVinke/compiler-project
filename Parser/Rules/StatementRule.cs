@@ -54,8 +54,7 @@ namespace Compiler.Parser.Rules
                     Declaration(),
                     Codeblock(),
                     Assignment(),
-                    FunctionCall(),
-                    //While()
+                    FunctionCall()
                 }
             ));
 

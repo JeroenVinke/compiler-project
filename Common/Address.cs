@@ -1,4 +1,4 @@
-﻿namespace Compiler.Parser.Common
+﻿namespace Compiler.Common
 {
     public class Address
     {

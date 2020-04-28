@@ -1,4 +1,5 @@
 ﻿using Compiler.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -46,6 +47,10 @@ namespace Compiler.Parser.Instances
                 List<ItemSet> setsToAdd = new List<ItemSet>();
                 foreach (ItemSet set in C)
                 {
+                    if (set.Id == 14031)
+                    {
+                        ;
+                    }
                     foreach (ExpressionDefinition symbol in symbols)
                     {
                         ItemSet _goto = set.Goto(symbol);
@@ -87,7 +92,7 @@ namespace Compiler.Parser.Instances
         public List<LookaheadPropogation> DetermineLookaheads(ExpressionDefinition x)
         {
             List<LookaheadPropogation> result = new List<LookaheadPropogation>();
-
+            
             if (!Transitions.Keys.Contains(x))
             {
                 return result;
@@ -107,7 +112,7 @@ namespace Compiler.Parser.Instances
                         )
                     }
                 );
-
+    
                 foreach (Item closureItem in j.KernelItems())
                 {
                     if (closureItem.ExpressionAfterDot != null
@@ -117,10 +122,18 @@ namespace Compiler.Parser.Instances
 
                         if (!closureItem.Lookahead.Any(y => y.TokenType == TokenType.Hash))
                         {
+                            if (i.Id == 1247)
+                            {
+                                ;
+                            }
                             i.Lookahead.AddRange(closureItem.Lookahead.Except(i.Lookahead));
                         }
                         else
                         {
+                            if (i.Id == 1247)
+                            {
+                                ;
+                            }
                             result.Add(new LookaheadPropogation
                             {
                                 FromItem = item,
@@ -152,16 +165,39 @@ namespace Compiler.Parser.Instances
 
                     foreach (Item i in closure)
                     {
-                        if (!set.Any(x => x.SubProduction == i.SubProduction && x.DotIndex == i.DotIndex))
+                        if (!set.Any(x => x.SubProduction == i.SubProduction
+                        && x.DotIndex == i.DotIndex
+                        && AreLookaheadsEqual(x.Lookahead, i.Lookahead)))
                         {
                             set.Add(i);
                             addedItem = true;
+                        }
+                        else
+                        {
                         }
                     }
                 }
             }
 
             return set;
+        }
+
+        private bool AreLookaheadsEqual(List<TerminalExpressionDefinition> list1, List<TerminalExpressionDefinition> list2)
+        {
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+
+            for(int i = 0; i < list1.Count; i++)
+            {
+                if (!list1[i].IsEqualTo(list2[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public ItemSet Goto(ExpressionDefinition expression)

@@ -1,6 +1,4 @@
-﻿using Compiler.Parser.Common;
-
-namespace Compiler.Parser.SyntaxTreeNodes
+﻿namespace Compiler.Parser.SyntaxTreeNodes
 {
     public abstract class FactorASTNode : SyntaxTreeNode
     {

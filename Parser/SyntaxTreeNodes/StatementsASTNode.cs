@@ -1,7 +1,7 @@
-﻿using Compiler.Parser.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Compiler.Parser.Instructions;
+using Compiler.Common;
+using Compiler.Common.Instructions;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
@@ -16,19 +16,25 @@ namespace Compiler.Parser.SyntaxTreeNodes
         public override Address GenerateCode(List<Instruction> instructions)
         {
             StatementASTNode previous = null;
+            Label lastLabel = null;
 
             foreach (StatementASTNode statement in Statements)
             {
-                Label label = new Label();
+                lastLabel = new Label();
 
-                if (previous != null && previous.Backpatch(label))
+                if (previous != null && previous.Backpatch(lastLabel))
                 {
-                    instructions.Add(new LabelInstruction(label));
+                    instructions.Add(new LabelInstruction(lastLabel));
                 }
 
                 statement.GenerateCode(instructions);
 
                 previous = statement;
+            }
+
+            if (previous != null && previous.Backpatch(lastLabel))
+            {
+                instructions.Add(new LabelInstruction(lastLabel));
             }
 
             return base.GenerateCode(instructions);

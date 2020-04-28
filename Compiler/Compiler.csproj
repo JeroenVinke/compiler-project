@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CodeGenerator\CodeGeneration.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\LexicalAnalyer\LexicalAnalyer.csproj" />
     <ProjectReference Include="..\Parser\Parser.csproj" />

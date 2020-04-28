@@ -34,6 +34,7 @@ namespace Compiler.Parser
                     BooleanRule.Initialize(ref _instance);
                     NumericExpressionRule.Initialize(ref _instance);
                     FactorRule.Initialize(ref _instance);
+                    IdentifierRule.Initialize(ref _instance);
                 }
 
                 return _instance;

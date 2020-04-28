@@ -10,57 +10,40 @@ namespace Compiler.Parser
     {
         public static ParsingTable Create(List<ItemSet> C,
             List<ExpressionDefinition> symbols,
-            Func<ItemSet, ExpressionDefinition, bool> shift,
-            Func<ItemSet, ExpressionDefinition, bool> accept,
-            Func<ItemSet, ExpressionDefinition, SubProduction, bool> reduce)
+            Func<ActionParsingTableEntry, bool> shift,
+            Func<ActionParsingTableEntry, bool> accept,
+            Func<ActionParsingTableEntry, bool> reduce)
         {
             ParsingTable parsingTable = new ParsingTable();
 
             // Actions
             foreach (ItemSet set in C)
             {
+                if (set.Id == 18552)
+                {
+                    ;
+                }
+
                 foreach (Item item in set)
                 {
                     if (item.ExpressionAfterDot != null
                         && item.ExpressionAfterDot is TerminalExpressionDefinition ted)
                     {
-                        parsingTable.Add(new ActionParsingTableEntry
-                        {
-                            ItemSet = set,
-                            ExpressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition,
-                            ActionDescription = "s",
-                            Action = shift
-                        });
+                        AddActionEntry(item, parsingTable, shift, "s", set, item.ExpressionAfterDot as TerminalExpressionDefinition);
                     }
                     else if (item.SubProduction.Production.Identifier == ParserConstants.Initial)
                     {
                         TerminalExpressionDefinition expressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition;
                         expressionDefinition = expressionDefinition ?? new TerminalExpressionDefinition() { TokenType = TokenType.EndMarker };
-                        parsingTable.Add(new ActionParsingTableEntry
-                        {
-                            ItemSet = set,
-                            ExpressionDefinition = expressionDefinition,
-                            ActionDescription = "a",
-                            Action = accept
-                        });
+
+                        AddActionEntry(item, parsingTable, accept, "a",  set, expressionDefinition);
                     }
                     else if (item.IsDotIndexAtEnd())
                     {
                         string identifier = item.SubProduction.Production.Identifier;
-                        if (identifier == "ClosedStatement")
-                        {
-                            ;
-                        }
                         foreach (TerminalExpressionDefinition ted1 in new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow())
                         {
-                            parsingTable.Add(new ActionParsingTableEntry
-                            {
-                                ItemSet = set,
-                                ExpressionDefinition = ted1,
-                                ActionDescription = "r",
-                                Action = (ItemSet arg1, ExpressionDefinition arg3) =>
-                                    reduce(arg1, arg3, item.SubProduction)
-                            });
+                            AddActionEntry(item, parsingTable, reduce, "r", set, ted1);
                         }
                     }
                 }
@@ -84,6 +67,30 @@ namespace Compiler.Parser
             }
 
             return parsingTable;
+        }
+
+        private static void AddActionEntry(Item item, ParsingTable parsingTable, Func<ActionParsingTableEntry, bool> action, string actionDescription, ItemSet set, TerminalExpressionDefinition expressionDefinition)
+        {
+            ActionParsingTableEntry existingEntry = (ActionParsingTableEntry)parsingTable.FirstOrDefault(x =>
+                                        x is ActionParsingTableEntry apte
+                                        && apte.ItemSet == set
+                                        && apte.ActionDescription == actionDescription
+                                        && apte.ExpressionDefinition.IsEqualTo(expressionDefinition));
+            if (existingEntry == null)
+            {
+                parsingTable.Add(new ActionParsingTableEntry
+                {
+                    ItemSet = set,
+                    ExpressionDefinition = expressionDefinition,
+                    Items = new List<Item> { item },
+                    ActionDescription = actionDescription,
+                    Action = action
+                });
+            }
+            else
+            {
+                existingEntry.Items.Add(item);
+            }
         }
 
         public string ToDot(List<ItemSet> states, List<ExpressionDefinition> symbols)
