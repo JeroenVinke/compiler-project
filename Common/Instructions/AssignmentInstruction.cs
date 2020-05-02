@@ -2,33 +2,26 @@
 {
     public class AssignmentInstruction : Instruction
     {
-        public Address Address { get; set; }
-        public object Value { get; set; }
-
-        public AssignmentInstruction(Address address, object value)
+        public AssignmentInstruction(Address target, Address value)
         {
-            Address = address;
-            Value = value;
+            Address1 = value;
+            Address3 = target;
         }
 
         public override string GenerateCodeString()
         {
-            string value;
+            string value = "";
 
-            if (Value is Address addr)
+            if (Address1 is Address addr)
             {
                 value = addr.ToString();
             }
-            else if (Value is bool b)
+            else if (Address1 is ConstantValue cv)
             {
-                value = b ? bool.TrueString : bool.FalseString;
-            }
-            else
-            {
-                value = Value.ToString();
+                value = cv.ToString();
             }
 
-            return $"{Address.ToString()} = {value}";
+            return $"{Address3.ToString()} = {value}";
         }
     }
 }

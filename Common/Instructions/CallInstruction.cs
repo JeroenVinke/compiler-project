@@ -1,12 +1,9 @@
 ﻿namespace Compiler.Common.Instructions
 {
-    public class CallInstruction : Instruction
+    public class CallInstruction : JumpInstruction
     {
-        public Label Label { get; set;  }
-
-        public CallInstruction(Label label)
+        public CallInstruction(Label label) : base(label)
         {
-            Label = label;
         }
 
         public override string GenerateCodeString()

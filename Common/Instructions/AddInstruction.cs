@@ -8,7 +8,7 @@
 
         public override string GenerateCodeString()
         {
-            return $"{Address3.ToString()} = {Address1.ToString()} + {Address2}";
+            return $"{Address3.ToString()} = {Address1.ToString()} + {Address2.ToString()}";
         }
     }
 }

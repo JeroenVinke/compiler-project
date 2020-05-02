@@ -1,18 +1,24 @@
 ﻿class Program {
-    void foo() {
-        int a;
+    void bar() {
         int b;
-        int c;
 
-        a = 5;
-        b = 10;
+        int i;
 
-        if (a > 5) {
-            c = 10;
-        } else {
-            c = 15;
+        i = 0;
+
+        while(i < 10)
+        {
+            i = i + 1;
         }
 
-        c = 30;
+        b = 15;
+
+        return;
+    }
+
+    void main() {
+        bar();
+
+        return;
     }
 }

@@ -25,6 +25,7 @@
         Type,
         Function,
         FunctionCall,
-        FunctionDeclarationArgument
+        FunctionDeclarationArgument,
+        Return
     }
 }

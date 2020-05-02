@@ -1,13 +1,13 @@
 ﻿namespace Compiler.CodeGeneration.Operations
 {
-    public class AddOperation : AssemblyOperation
+    public class XorInstruction : AssemblyOperation
     {
-        public string Target { get; set; }
         public string Value { get; set; }
+        public string Target { get; set; }
 
         public override string ToString()
         {
-            return $"ADD {Target}, {Value}";
+            return $"XOR {Target}, {Value}";
         }
     }
 }

@@ -54,7 +54,9 @@ namespace Compiler.Parser.Rules
                     Declaration(),
                     Codeblock(),
                     Assignment(),
-                    FunctionCall()
+                    FunctionCall(),
+                    Return(),
+                    While()
                 }
             ));
 
@@ -121,14 +123,14 @@ namespace Compiler.Parser.Rules
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
                     new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
                     new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
-                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Codeblock },
-                    //new SemanticAction((ParsingNode node) =>
-                    //{
-                    //    WhileASTNode syntaxTreeNode = new WhileASTNode();
-                    //    syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", ParserConstants.SyntaxTreeNode);
-                    //    syntaxTreeNode.Body = node.GetAttributeForKey<StatementsASTNode>("Codeblock", ParserConstants.SyntaxTreeNode);
-                    //    node.Attributes[ParserConstants.SyntaxTreeNode] = syntaxTreeNode;
-                    //})
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Statement },
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        WhileASTNode syntaxTreeNode = new WhileASTNode();
+                        syntaxTreeNode.Condition = node.GetAttributeForKey<BooleanExpressionASTNode>("BooleanExpression", ParserConstants.SyntaxTreeNode);
+                        syntaxTreeNode.Body = node.GetAttributeForKey<SyntaxTreeNode>("Statement", ParserConstants.SyntaxTreeNode);
+                        node.Attributes[ParserConstants.SyntaxTreeNode] = syntaxTreeNode;
+                    })
                 }
             );
         }
@@ -280,6 +282,22 @@ namespace Compiler.Parser.Rules
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
                         node.Attributes[ParserConstants.SyntaxTreeNode] = node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.Declaration, ParserConstants.SyntaxTreeNode);
+                    }),
+                }
+            );
+        }
+
+        private static SubProduction Return()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new TerminalExpressionDefinition { TokenType = TokenType.Return },
+                    new TerminalExpressionDefinition { TokenType = TokenType.Semicolon },
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        node.Attributes[ParserConstants.SyntaxTreeNode] = new ReturnASTNode();
                     }),
                 }
             );

@@ -7,7 +7,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
     public class WhileASTNode : StatementASTNode
     {
         public BooleanExpressionASTNode Condition { get; set; }
-        public StatementsASTNode Body { get; set; }
+        public SyntaxTreeNode Body { get; set; }
 
         public WhileASTNode() : base(SyntaxTreeNodeType.While)
         {
@@ -15,12 +15,14 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override Address GenerateCode(List<Instruction> instructions)
         {
+            Label startLabel = new Label();
+            instructions.Add(new LabelInstruction(startLabel));
             Condition.GenerateCode(instructions);
 
             Label trueLabel = new Label();
             instructions.Add(new LabelInstruction(trueLabel));
             Body.GenerateCode(instructions);
-            instructions.Add(new JumpInstruction(trueLabel));
+            instructions.Add(new JumpInstruction(startLabel));
 
             Label falseLabel = new Label();
             instructions.Add(new LabelInstruction(falseLabel));

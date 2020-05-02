@@ -27,6 +27,7 @@ namespace Compiler.LexicalAnalyer
             lexLanguage.Add("if#", (string value) => { return new WordToken { Type = TokenType.If }; });
             lexLanguage.Add("else#", (string value) => { return new WordToken { Type = TokenType.Else }; });
             lexLanguage.Add("while#", (string value) => { return new WordToken { Type = TokenType.While }; });
+            lexLanguage.Add("return#", (string value) => { return new WordToken { Type = TokenType.Return }; });
             lexLanguage.Add("(true|false)#", (string value) => { return new WordToken { Type = TokenType.Boolean }; });
             lexLanguage.Add("(string|int|void)#", (string value) => { return new WordToken { Type = TokenType.TypeDeclaration }; });
             lexLanguage.Add("{#", (string value) =>

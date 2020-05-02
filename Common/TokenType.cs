@@ -29,6 +29,7 @@
         If,
         Else,
         Hash,
-        Comma
+        Comma,
+        Return
     }
 }

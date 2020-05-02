@@ -14,7 +14,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override Address GenerateCode(List<Instruction> instructions)
         {
-            return new Address("", "" + Value);
+            return new ConstantValue(Value);
         }
 
         public override string ToString()
