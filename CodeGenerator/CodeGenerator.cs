@@ -61,7 +61,6 @@ namespace Compiler.CodeGeneration
 
                         RBP = RSP;
 
-                        // bijhouden wat een parameter is, want daar hoef je geen geheugen voor te reserveren
                         int blockSize = block.GetSize();
 
                         if (blockSize > 0)
@@ -172,29 +171,6 @@ namespace Compiler.CodeGeneration
                     }
                     else if (instruction is CallInstruction callInstruction)
                     {
-                        //operations.Add(new PushOperation()
-                        //{
-                        //    Target = "RBP"
-                        //});
-
-                        //RSP -= 4;
-
-                        //operations.Add(new MoveOperation()
-                        //{
-                        //    Value = "RSP",
-                        //    Target = "RBP"
-                        //});
-
-                        //RBP = RSP;
-
-                        //operations.Add(new SubtractOperation()
-                        //{
-                        //    Value = "" + parameterAddresses.Sum(x => x.Size),
-                        //    Target = "RSP"
-                        //});
-
-                        //RSP -= parameterAddresses.Sum(x => x.Size);
-
                         foreach (Address parameterAddress in parameterAddresses)
                         {
                             if (parameterAddress is ConstantValue cv)
