@@ -2,16 +2,13 @@
 {
     public class ParamInstruction : Instruction
     {
-        public Address Address { get; set;  }
-
-        public ParamInstruction(Address address)
+        public ParamInstruction(Address address) : base(address, null, null)
         {
-            Address = address;
         }
 
         public override string GenerateCodeString()
         {
-            return $"param {Address.ToString()}";
+            return $"param {Address1.ToString()}";
         }
     }
 }

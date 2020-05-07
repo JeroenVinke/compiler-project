@@ -25,7 +25,7 @@ namespace Compiler
                 .OutputDebugFiles()
                 .OutputIL();
 
-            LiveVariableAnalysis.Analyse(parser.GetIL());
+            CodeGenerator.Generate(parser.GetIL());
 
             Console.WriteLine("Done");
 

@@ -20,7 +20,9 @@ namespace Compiler.Parser.Rules
                             {
                                 SymbolTable symbolTable = node.CurrentSymbolTable;
 
-                                if(symbolTable.Get(node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token).Lexeme, out SymbolTableEntry entry))
+                                string name = node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token).Lexeme;
+
+                                if(symbolTable.Get(name, out SymbolTableEntry entry))
                                 {
                                     node.Attributes.Add(ParserConstants.SyntaxTreeNode, new DynamicTypeASTNode()
                                     {
@@ -29,7 +31,7 @@ namespace Compiler.Parser.Rules
                                 }
                                 else
                                 {
-                                    throw new System.Exception();
+                                    throw new System.Exception($"Entry for '{name}' not found in the symboltable");
                                 }
                             })
                         }

@@ -9,6 +9,10 @@ namespace Compiler.CodeGeneration
 {
     public static class CodeGenerator
     {
+
+        public static int RSP = 0;
+        public static int RBP = 0;
+
         public static void Generate(List<Instruction> instructions)
         {
             List<Instruction> leaders = GetLeaders(instructions);
@@ -22,16 +26,6 @@ namespace Compiler.CodeGeneration
 
             List<AssemblyOperation> operations = new List<AssemblyOperation>();
 
-            operations.Add(new PushOperation()
-            {
-                Target = "RBP"
-            });
-
-            operations.Add(new MoveOperation()
-            {
-                Value = "RSP",
-                Target = "RBP"
-            });
 
             foreach (Block block in blocks)
             {
@@ -39,34 +33,71 @@ namespace Compiler.CodeGeneration
 
                 int relativeAddress = 0;
 
+                List<Address> parameterAddresses = new List<Address>();
+
                 foreach (Instruction instruction in block.Instructions)
                 {
-                    foreach (Address variable in instruction.GetAddresses())
+                    AllocateRegisters(ref relativeAddress, operations, instruction);
+
+                    if (instruction is FunctionInstruction functionInstruction)
                     {
-                        variable.CalculateRelativeAddress(ref relativeAddress);
+                        operations.Add(new LabelOperation()
+                        {
+                            Label = functionInstruction.Label.ToString()
+                        });
+
+                        operations.Add(new PushOperation()
+                        {
+                            Target = "RBP"
+                        });
+
+                        RSP -= 4;
+
+                        operations.Add(new MoveOperation()
+                        {
+                            Value = "RSP",
+                            Target = "RBP"
+                        });
+
+                        RBP = RSP;
+
+                        // bijhouden wat een parameter is, want daar hoef je geen geheugen voor te reserveren
+                        int blockSize = block.GetSize();
+
+                        if (blockSize > 0)
+                        {
+                            operations.Add(new SubtractOperation()
+                            {
+                                Value = "" + blockSize,
+                                Target = "RSP"
+                            });
+
+                            RSP -= blockSize;
+                        }
+
+                        foreach (SymbolTableEntry symbolTableEntry in functionInstruction.Arguments)
+                        {
+                            Address address = symbolTableEntry.Address;
+
+                            AllocateRegister(ref relativeAddress, instruction, address, operations);
+
+                            operations.Add(new MoveOperation()
+                            {
+                                Target = address.ToMemoryLocation(),
+                                Value = $"dword ptr [rbp + {12 + address.RelativeAddress}]"
+                            });
+                        }
                     }
-                }
-
-                int blockSize = block.GetSize();
-                if (blockSize > 0)
-                {
-                    operations.Add(new SubtractOperation()
-                    {
-                        Value = "" + blockSize,
-                        Target = "RSP"
-                    });
-                }
-
-                foreach (Instruction instruction in block.Instructions)
-                {
-                    AllocateRegisters(operations, instruction);
-
-                    if (instruction is LabelInstruction labelInstruction)
+                    else if (instruction is LabelInstruction labelInstruction)
                     {
                         operations.Add(new LabelOperation()
                         {
                             Label = labelInstruction.Label.ToString()
                         });
+                    }
+                    else if (instruction is ParamInstruction paramInstruction)
+                    {
+                        parameterAddresses.Add(paramInstruction.Address1);
                     }
                     else if (instruction is IfJumpInstruction ifJumpInstruction)
                     {
@@ -127,19 +158,71 @@ namespace Compiler.CodeGeneration
                             Target = "RSP"
                         });
 
+                        RSP = RBP;
+
                         operations.Add(new PopOperation()
                         {
                             Target = "RBP"
                         });
 
+                        RBP = RSP;
+                        RSP += 4;
+
                         operations.Add(new ReturnOperation());
                     }
                     else if (instruction is CallInstruction callInstruction)
                     {
+                        //operations.Add(new PushOperation()
+                        //{
+                        //    Target = "RBP"
+                        //});
+
+                        //RSP -= 4;
+
+                        //operations.Add(new MoveOperation()
+                        //{
+                        //    Value = "RSP",
+                        //    Target = "RBP"
+                        //});
+
+                        //RBP = RSP;
+
+                        //operations.Add(new SubtractOperation()
+                        //{
+                        //    Value = "" + parameterAddresses.Sum(x => x.Size),
+                        //    Target = "RSP"
+                        //});
+
+                        //RSP -= parameterAddresses.Sum(x => x.Size);
+
+                        foreach (Address parameterAddress in parameterAddresses)
+                        {
+                            if (parameterAddress is ConstantValue cv)
+                            {
+                                operations.Add(new MoveOperation()
+                                {
+                                    Value = parameterAddress.ToMemoryLocation(),
+                                    Target = $"dword ptr [rbp - {parameterAddress.RelativeAddress}]"
+                                });
+                            }
+                            else
+                            {
+                                operations.Add(new MoveOperation()
+                                {
+                                    Value = parameterAddress.ToMemoryLocation(),
+                                    Target = $"dword ptr [rbp - {parameterAddress.RelativeAddress}]"
+                                });
+                            }
+                        }
+
+                        parameterAddresses = new List<Address>();
+
                         operations.Add(new CallOperation
                         {
                             Label = callInstruction.Label.ToString()
                         });
+
+                        RSP -= 8;
                     }
                     else if (instruction is JumpInstruction jumpInstruction)
                     {
@@ -147,6 +230,8 @@ namespace Compiler.CodeGeneration
                         {
                             Label = jumpInstruction.Label.ToString()
                         });
+
+                        RSP -= 8;
                     }
                 }
             }
@@ -159,16 +244,28 @@ namespace Compiler.CodeGeneration
             ;
         }
 
-        private static void AllocateRegisters(List<AssemblyOperation> operations, Instruction instruction)
+        private static void AllocateRegisters(ref int relativeAddress, List<AssemblyOperation> operations, Instruction instruction)
         {
-            AllocateRegister(instruction, instruction.Address1, operations);
-            AllocateRegister(instruction, instruction.Address2, operations);
-            AllocateRegister(instruction, instruction.Address3, operations);
+            AllocateRegister(ref relativeAddress, instruction, instruction.Address1, operations);
+            AllocateRegister(ref relativeAddress, instruction, instruction.Address2, operations);
+            AllocateRegister(ref relativeAddress, instruction, instruction.Address3, operations);
         }
 
-        private static void AllocateRegister(Instruction instruction, Address address, List<AssemblyOperation> operations)
+        private static void AllocateRegister(ref int relativeAddress, Instruction instruction, Address address, List<AssemblyOperation> operations)
         {
-            if (address != null && !(address is ConstantValue) && !TryAssignRegister(address))
+            if (address == null)
+            {
+                return;
+            }
+
+            address.CalculateRelativeAddress(ref relativeAddress);
+
+            if (address is ConstantValue)
+            {
+                return;
+            }
+
+            if (!TryAssignRegister(address))
             {
                 LiveAnalysisEntry deadEntry = instruction.LiveVariableEntries.FirstOrDefault(x => x.NextUse == null && x.Variable.Register != null);
                 if (deadEntry != null)
@@ -280,6 +377,7 @@ namespace Compiler.CodeGeneration
                     {
                         leaders.Add(instruction);
                     }
+                    lastInstructionWasJump = false;
                 }
                 else if (leaders.Count == 0)
                 {

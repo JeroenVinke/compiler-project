@@ -99,7 +99,7 @@ namespace Compiler.Parser
                 }
                 else
                 {
-                    if (!(expressionDefinition is TerminalExpressionDefinition ted && ted.TokenType == Compiler.Common.TokenType.EmptyString))
+                    if (!(expressionDefinition is TerminalExpressionDefinition ted && ted.TokenType == TokenType.EmptyString))
                     {
                         ParsingNode child = Children.First(x => x.Expression.Key == expressionDefinition.Key);
 

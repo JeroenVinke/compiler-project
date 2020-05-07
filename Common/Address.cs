@@ -10,7 +10,7 @@ namespace Compiler.Common
         public string DisplayValue { get; set; }
         public Register Register { get; set; }
         public int Size { get; set; } = 4;
-        public int RelativeAddress { get; set; }
+        public int? RelativeAddress { get; set; }
         public bool Spilled { get; set; }
 
         public Address(string prefix = "t", string display = "")
@@ -42,8 +42,11 @@ namespace Compiler.Common
 
         public void CalculateRelativeAddress(ref int relativeAddress)
         {
-            RelativeAddress = relativeAddress;
-            relativeAddress += Size;
+            if (!RelativeAddress.HasValue)
+            {
+                RelativeAddress = relativeAddress + Size;
+                relativeAddress += Size;
+            }
         }
     }
 }

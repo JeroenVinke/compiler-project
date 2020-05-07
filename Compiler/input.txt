@@ -1,23 +1,14 @@
 ﻿class Program {
-    void bar() {
-        int b;
+    void add(int a, int b) {
+        int c;
 
-        int i;
-
-        i = 0;
-
-        while(i < 10)
-        {
-            i = i + 1;
-        }
-
-        b = 15;
+        c = a + b;
 
         return;
     }
 
     void main() {
-        bar();
+        add(5, 10);
 
         return;
     }

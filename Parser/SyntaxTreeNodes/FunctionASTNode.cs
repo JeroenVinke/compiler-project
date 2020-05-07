@@ -18,7 +18,8 @@ namespace Compiler.Parser.SyntaxTreeNodes
         public override Address GenerateCode(List<Instruction> instructions)
         {
             Label functionlabel = new Label();
-            instructions.Add(new LabelInstruction(functionlabel));
+
+            instructions.Add(new FunctionInstruction(functionlabel, Arguments));
             FunctionName.Label = functionlabel;
 
             Body.GenerateCode(instructions);
