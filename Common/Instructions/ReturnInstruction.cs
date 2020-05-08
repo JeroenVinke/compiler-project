@@ -2,13 +2,13 @@
 {
     public class ReturnInstruction : Instruction
     {
-        public ReturnInstruction()
+        public ReturnInstruction(Address returnValue) : base(returnValue)
         {
         }
 
         public override string GenerateCodeString()
         {
-            return $"ret";
+            return $"ret {Address1.ToString()}";
         }
     }
 }

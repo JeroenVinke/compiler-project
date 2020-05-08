@@ -4,12 +4,12 @@
 
         c = a + b;
 
-        return;
+        return c;
     }
 
     void main() {
         add(5, 10);
 
-        return;
+        return 10;
     }
 }

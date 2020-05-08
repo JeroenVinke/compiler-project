@@ -294,10 +294,13 @@ namespace Compiler.Parser.Rules
                 new List<ExpressionDefinition>
                 {
                     new TerminalExpressionDefinition { TokenType = TokenType.Return },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Factor },
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        node.Attributes[ParserConstants.SyntaxTreeNode] = new ReturnASTNode();
+                        ReturnASTNode astNode = new ReturnASTNode();
+                        astNode.ReturnValue = node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode);
+                        node.Attributes[ParserConstants.SyntaxTreeNode] = astNode;
                     }),
                 }
             );

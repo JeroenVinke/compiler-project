@@ -149,8 +149,16 @@ namespace Compiler.CodeGeneration
                             Target = addInstruction.Address3.ToMemoryLocation(),
                         });
                     }
-                    else if (instruction is ReturnInstruction)
+                    else if (instruction is ReturnInstruction returnInstruction)
                     {
+                        operations.Add(new MoveOperation()
+                        {
+                            Value = returnInstruction.Address1.ToMemoryLocation(),
+                            Target = Registers.EAX.Name
+                        });
+
+                        RSP = RBP;
+
                         operations.Add(new MoveOperation()
                         {
                             Value = "RBP",
