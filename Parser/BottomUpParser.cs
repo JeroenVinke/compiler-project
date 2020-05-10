@@ -11,6 +11,7 @@ namespace Compiler.Parser
 {
     public class BottomUpParser
     {
+        private bool DebugModeEnabled = false;
         private LexicalAnalyzer LexicalAnalyzer { get; set; }
         private Token Current { get; set; }
         public SymbolTable RootSymbolTable { get; set; } = new SymbolTable();
@@ -45,15 +46,20 @@ namespace Compiler.Parser
         {
             LexicalAnalyzer = lexicalAnalyzer;
 
+            GenerateAutomaton();
+
+            ParsingTable = new ParsingTable(CanonicalSets, GrammarSymbols, Shift, Accept, Reduce);
+        }
+
+        public void GenerateAutomaton()
+        {
             SubProduction startingRule = Grammar.Instance.First(x => x.Identifier == ParserConstants.Initial).First();
             GrammarSymbols = Grammar.Instance.Symbols();
 
-            Item startingItem = new Item(startingRule, new List<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
+            Item startingItem = new Item(startingRule, 0, new HashSet<TerminalExpressionDefinition> { new TerminalExpressionDefinition { TokenType = TokenType.EndMarker } });
             Initial = new ItemSet(new List<Item> { startingItem }).Closure();
             CanonicalSets = Initial.GetCanonicalSets(GrammarSymbols);
             PropogateLookaheads(GrammarSymbols);
-
-            ParsingTable = ParsingTable.Create(CanonicalSets, GrammarSymbols, Shift, Accept, Reduce);
         }
 
         public string GetAutomaton()
@@ -63,6 +69,12 @@ namespace Compiler.Parser
 
         public BottomUpParser Parse()
         {
+            if (DebugModeEnabled)
+            {
+                OutputGrammar();
+                OutputAutomaton();
+            }
+            
             Current = LexicalAnalyzer.GetNextToken();
 
             Stack.Add(Initial);
@@ -73,6 +85,12 @@ namespace Compiler.Parser
 
             TopLevelAST = ParsingNodes.Last().GetAttribute<SyntaxTreeNode>(ParserConstants.SyntaxTreeNode);
 
+            if (DebugModeEnabled)
+            {
+                OutputDebugFiles();
+                OutputIL();
+            }
+
             return this;
         }
 
@@ -82,18 +100,8 @@ namespace Compiler.Parser
 
             foreach (ItemSet set in CanonicalSets)
             {
-                if (set.Id == 17233)
-                {
-                    ;
-                }
                 foreach (ExpressionDefinition ted in symbols)
                 {
-                    if (set.Id == 14031
-                        && ted is NonTerminalExpressionDefinition nted
-                        && nted.Identifier == "Identifier")
-                    {
-                        ;
-                    }
                     propogations.AddRange(set.DetermineLookaheads(ted));
                 }
             }
@@ -106,11 +114,6 @@ namespace Compiler.Parser
                 {
                     foreach (Item item in set.KernelItems())
                     {
-                        if (set.Id == 17233)
-                        {
-                            ;
-                        }
-
                         LookaheadPropogation propogation = propogations.FirstOrDefault(x => x.ToSet == set && x.ToItem.IsEqualTo(item));
                         if (propogation != null)
                         {
@@ -119,11 +122,7 @@ namespace Compiler.Parser
                             if (lookaheads.Count > 0)
                             {
                                 addedLookahead = true;
-                                if (item.Id == 1247)
-                                {
-                                    ;
-                                }
-                                item.Lookahead.AddRange(lookaheads);
+                                item.AddLookaheads(lookaheads);
                             }
                         }
                     }
@@ -146,8 +145,8 @@ namespace Compiler.Parser
 
         private ActionParsingTableEntry GetEntry()
         {
-            List<ActionParsingTableEntry> entries = ParsingTable.Where(x => x is ActionParsingTableEntry a
-                       && a.ItemSet == Stack.Last()
+            List<ActionParsingTableEntry> entries = ParsingTable.GetSegment(Stack.Last()).Entries
+                .Where(x => x is ActionParsingTableEntry a
                        && a.ExpressionDefinition.TokenType == Current.Type).Cast<ActionParsingTableEntry>().ToList();
 
             if (entries.Count == 1)
@@ -363,7 +362,8 @@ namespace Compiler.Parser
             }
 
             ItemSet tos = Stack.Last();
-            List<ParsingTableEntry> entries = ParsingTable.Where(x => x is GotoParsingTableEntry g
+            List<ParsingTableEntry> entries = ParsingTable.GetSegment(tos).Entries
+                .Where(x => x is GotoParsingTableEntry g
                 && g.ItemSet == tos
                 && g.ExpressionDefinition.IsEqualTo(target)).ToList();
 
@@ -373,7 +373,10 @@ namespace Compiler.Parser
             }
 
             GotoParsingTableEntry gotoEntry = (GotoParsingTableEntry)entries.First();
-            Console.WriteLine("DEST " + gotoEntry.Destination.Id+", TARGET " + target.ToString());
+            if (DebugModeEnabled)
+            {
+                Console.WriteLine("REDUCE DEST " + gotoEntry.Destination.Id + ", TARGET " + target.ToString());
+            }
             Stack.Add(gotoEntry.Destination);
 
             return true;
@@ -397,7 +400,10 @@ namespace Compiler.Parser
             }
 
             ItemSet transition = transitions.First();
-            Console.WriteLine("SHIFT " + Current.ToString() + ", to" + transition.Id);
+            if (DebugModeEnabled)
+            {
+                Console.WriteLine("SHIFT " + Current.ToString() + ", to" + transition.Id);
+            }
             Stack.Add(transition);
 
             ParsingNode parsingNode = new ParsingNode()

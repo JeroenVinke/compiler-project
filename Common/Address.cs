@@ -9,7 +9,7 @@ namespace Compiler.Common
         public string Prefix { get; set; }
         public string DisplayValue { get; set; }
         public Register Register { get; set; }
-        public int Size { get; set; } = 4;
+        public virtual int Size { get; set; } = 4;
         public int? RelativeAddress { get; set; }
         public bool Spilled { get; set; }
 
@@ -25,7 +25,7 @@ namespace Compiler.Common
             return Prefix + (!string.IsNullOrEmpty(DisplayValue) ? DisplayValue : "" + Id);
         }
 
-        public string ToMemoryLocation()
+        public virtual string ToMemoryLocation()
         {
             if (this is ConstantValue cv)
             {
@@ -40,7 +40,7 @@ namespace Compiler.Common
             return $"dword ptr [rbp - {RelativeAddress}]";
         }
 
-        public void CalculateRelativeAddress(ref int relativeAddress)
+        public virtual void CalculateRelativeAddress(ref int relativeAddress)
         {
             if (!RelativeAddress.HasValue)
             {

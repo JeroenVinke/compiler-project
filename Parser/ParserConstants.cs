@@ -33,5 +33,6 @@
         public const string NumericFactor = "NumericFactor";
         public const string NumericTerm = "NumericTerm";
         public const string BooleanTerm = "BooleanTerm";
+        public const string FunctionCall = "FunctionCall";
     }
 }

@@ -213,23 +213,11 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Identifier },
-                    new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisOpen },
-                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.Factors },
-                    new TerminalExpressionDefinition { TokenType = TokenType.ParenthesisClose },
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.FunctionCall },
                     new TerminalExpressionDefinition { TokenType = TokenType.Semicolon },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
-                        FunctionCallASTNode syntaxTreeNode = new FunctionCallASTNode();
-                        syntaxTreeNode.Target = node.GetAttributeForKey<SymbolTableEntry>(ParserConstants.Identifier, ParserConstants.SymbolTableEntry);
-                        syntaxTreeNode.Arguments = node.GetAttributeForKey<List<FactorASTNode>>(ParserConstants.Factors, Factors);
-
-                        FunctionASTNode functionASTNode = syntaxTreeNode.Target.GetMetadata<FunctionASTNode>("FunctionASTNode");
-                        syntaxTreeNode.FunctionASTNode = functionASTNode;
-
-
-
-                        node.Attributes[ParserConstants.SyntaxTreeNode] = syntaxTreeNode;
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.FunctionCall, ParserConstants.SyntaxTreeNode));
                     })
                 }
             );
@@ -249,7 +237,7 @@ namespace Compiler.Parser.Rules
                     {
                         AssignmentASTNode syntaxTreeNode = new AssignmentASTNode();
                         syntaxTreeNode.SymbolTableEntry = node.GetAttributeForKey<SymbolTableEntry>(ParserConstants.Identifier, ParserConstants.SymbolTableEntry);
-                        syntaxTreeNode.Value = node.GetAttributeForKey<NumericExpressionASTNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode);
+                        syntaxTreeNode.Value = node.GetAttributeForKey<FactorASTNode>(ParserConstants.Factor, ParserConstants.SyntaxTreeNode);
                         node.Attributes[ParserConstants.SyntaxTreeNode] = syntaxTreeNode;
                     })
                 }

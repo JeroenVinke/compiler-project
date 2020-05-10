@@ -1,10 +1,9 @@
-﻿using Compiler.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Compiler.Parser
 {
-    public class ExpressionSet : List<TerminalExpressionDefinition>
+    public class ExpressionSet : HashSet<TerminalExpressionDefinition>
     {
         public ExpressionSet()
         {
@@ -19,9 +18,12 @@ namespace Compiler.Parser
             return "{" + string.Join(", ", this.Select(x => x.ToString()).ToList()) + "}";
         }
 
-        internal void AddRangeUnique(ExpressionSet first)
+        internal void AddRangeUnique(IEnumerable<TerminalExpressionDefinition> first)
         {
-            AddRange(first.Where(x => !this.Any(y => y.TokenType == x.TokenType)).ToList());
+            foreach(TerminalExpressionDefinition ted in first)
+            {
+                Add(ted);
+            }
         }
     }
 }

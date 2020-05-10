@@ -1,5 +1,4 @@
-﻿using Compiler.Parser;
-using System;
+﻿using System;
 
 namespace Compiler.Parser
 {

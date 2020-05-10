@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Compiler.Parser.SyntaxTreeNodes
 {
-    public class FunctionCallASTNode : StatementASTNode
+    public class FunctionCallASTNode : FactorASTNode
     {
         public FunctionASTNode FunctionASTNode { get; set; }
         public SymbolTableEntry Target { get; set; }
@@ -28,7 +28,8 @@ namespace Compiler.Parser.SyntaxTreeNodes
             }
 
             instructions.Add(new CallInstruction(Target.Label));
-            return base.GenerateCode(instructions);
+
+            return Registers.EAX;
         }
 
         public override string ToString()

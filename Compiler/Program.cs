@@ -5,6 +5,7 @@ using Compiler.LexicalAnalyer;
 using Compiler.Parser;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Compiler
@@ -15,19 +16,17 @@ namespace Compiler
         {
             string input = File.ReadAllText(args[0]);
 
+            Stopwatch sw = Stopwatch.StartNew();
             LexicalAnalyzer analyzer = new LexicalAnalyzer(LexicalLanguage.GetLanguage(), input);
             BottomUpParser parser = new BottomUpParser(analyzer);
 
-            parser
-                .OutputGrammar()
-                .OutputAutomaton()
-                .Parse()
-                .OutputDebugFiles()
-                .OutputIL();
+            parser.Parse();
 
             CodeGenerator.Generate(parser.GetIL());
 
-            Console.WriteLine("Done");
+            sw.Stop();
+
+            Console.WriteLine($"Done (took {sw.ElapsedMilliseconds} milliseconds)");
 
             Console.ReadLine();
             Console.ReadLine();

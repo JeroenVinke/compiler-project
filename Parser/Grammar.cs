@@ -25,6 +25,7 @@ namespace Compiler.Parser
 
                     ClassRule.Initialize(ref _instance);
                     FunctionRule.Initialize(ref _instance);
+                    FunctionCallRule.Initialize(ref _instance);
                     TypeRule.Initialize(ref _instance);
                     CodeblockRule.Initialize(ref _instance);
                     StatementsRule.Initialize(ref _instance);

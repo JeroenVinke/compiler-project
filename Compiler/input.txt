@@ -1,14 +1,17 @@
 ﻿class Program {
-    void add(int a, int b) {
-        int c;
-
-        c = a + b;
-
-        return c;
+    void add() {
+        return 5;
     }
 
     void main() {
-        add(5, 10);
+        int a;
+        int result;
+
+        a = 15;
+        result = add();
+
+
+        a = a + result;
 
         return 10;
     }

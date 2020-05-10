@@ -11,6 +11,7 @@ namespace Compiler.Parser.Rules
                 new List<SubProduction>
                 {
                     IdentifierRule(),
+                    FunctionCallRule(),
                     BooleanExpressionRule(),
                     NumExpressionRule()
                 }
@@ -27,6 +28,21 @@ namespace Compiler.Parser.Rules
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
                         node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.Identifier, ParserConstants.SyntaxTreeNode));
+                    })
+                }
+            );
+        }
+
+        private static SubProduction FunctionCallRule()
+        {
+            return new SubProduction
+            (
+                new List<ExpressionDefinition>
+                {
+                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.FunctionCall },
+                    new SemanticActionDefinition((ParsingNode node) =>
+                    {
+                        node.Attributes.Add(ParserConstants.SyntaxTreeNode, node.GetAttributeForKey<SyntaxTreeNode>(ParserConstants.FunctionCall, ParserConstants.SyntaxTreeNode));
                     })
                 }
             );

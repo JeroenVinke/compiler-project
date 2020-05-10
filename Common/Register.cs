@@ -1,14 +1,18 @@
 ﻿namespace Compiler.Common
 {
-    public class Register
+    public class Register : Address
     {
         public string Name { get; set; }
-        public Address Address { get; set; }
+        public Address AddressInRegister { get; set; }
+        public override int Size { get => 0; }
 
         public void Clear()
         {
-            Address.Register = null;
-            Address = null;
+            if (AddressInRegister != null)
+            {
+                AddressInRegister.Register = null;
+            }
+            AddressInRegister = null;
         }
 
         public override string ToString()
@@ -16,6 +20,15 @@
             return Name;
         }
 
-        public bool InUse => Address != null;
+        public bool InUse => AddressInRegister != null;
+
+        public override void CalculateRelativeAddress(ref int relativeAddress)
+        {
+        }
+
+        public override string ToMemoryLocation()
+        {
+            return Name;
+        }
     }
 }

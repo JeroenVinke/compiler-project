@@ -131,11 +131,11 @@ namespace Compiler.CodeGeneration
                     }
                     else if (instruction is AddInstruction addInstruction)
                     {
-                        operations.Add(new XorInstruction()
-                        {
-                            Target = addInstruction.Address3.ToMemoryLocation(),
-                            Value = addInstruction.Address3.ToMemoryLocation()
-                        });
+                        //operations.Add(new XorInstruction()
+                        //{
+                        //    Target = addInstruction.Address3.ToMemoryLocation(),
+                        //    Value = addInstruction.Address3.ToMemoryLocation()
+                        //});
 
                         operations.Add(new AddOperation()
                         {
@@ -156,6 +156,8 @@ namespace Compiler.CodeGeneration
                             Value = returnInstruction.Address1.ToMemoryLocation(),
                             Target = Registers.EAX.Name
                         });
+
+                        Registers.EAX.Clear();
 
                         RSP = RBP;
 
@@ -267,10 +269,10 @@ namespace Compiler.CodeGeneration
                     }
                     else
                     {
-                        operations.Add(new MoveOperation()
+                        operations.Add(new XorInstruction()
                         {
                             Target = address.Register.Name,
-                            Value = $"0"
+                            Value = address.Register.Name
                         });
                     }
                 }
@@ -319,9 +321,9 @@ namespace Compiler.CodeGeneration
 
             foreach (Register register in Registers.All)
             {
-                if (register.Address == null)
+                if (register.AddressInRegister == null)
                 {
-                    register.Address = address;
+                    register.AddressInRegister = address;
                     address.Register = register;
                     return true;
                 }

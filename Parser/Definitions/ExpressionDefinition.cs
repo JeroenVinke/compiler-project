@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace Compiler.Parser
+﻿namespace Compiler.Parser
 {
     public abstract class ExpressionDefinition
     {
         public abstract ExpressionSet First();
-        public SubProduction SubProduction { get; set; }
+        public int SubProductionId { get; set; }
+        public SubProduction SubProduction
+        {
+            get
+            {
+                return SubProduction.AllSubProductions[SubProductionId];
+            }
+        }
         public string Key { get; set; }
 
         public abstract bool IsEqualTo(ExpressionDefinition definition);

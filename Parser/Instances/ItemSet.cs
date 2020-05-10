@@ -5,10 +5,11 @@ using System.Linq;
 
 namespace Compiler.Parser.Instances
 {
-    public class ItemSet : List<Item>
+    public class ItemSet : HashSet<Item>
     {
         public static int MaxId { get; set; }
         public int Id { get; set; }
+        private ItemSet _closure;
         public Dictionary<ExpressionDefinition, ItemSet> Transitions { get; set; } = new Dictionary<ExpressionDefinition, ItemSet>();
 
         public ItemSet() : this(new List<Item>())
@@ -22,71 +23,12 @@ namespace Compiler.Parser.Instances
 
         public bool IsEqualTo(ItemSet otherSet)
         {
-            if (Count != otherSet.Count)
-            {
-                return false;
-            }
-
-            for(int i = 0; i < Count; i++)
-            {
-                if (!otherSet[i].IsEqualTo(this[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return GetHashCode() == otherSet.GetHashCode();
         }
 
-        public List<ItemSet> GetCanonicalSets(List<ExpressionDefinition> symbols)
+        public override int GetHashCode()
         {
-            List<ItemSet> C = new List<ItemSet>();
-            C.Add(this);
-            while (true)
-            {
-                List<ItemSet> setsToAdd = new List<ItemSet>();
-                foreach (ItemSet set in C)
-                {
-                    if (set.Id == 14031)
-                    {
-                        ;
-                    }
-                    foreach (ExpressionDefinition symbol in symbols)
-                    {
-                        ItemSet _goto = set.Goto(symbol);
-
-                        if (_goto.Count > 0)
-                        {
-                            ItemSet _existingGoto = C.FirstOrDefault(x => x.IsEqualTo(_goto));
-                            if (_existingGoto == null)
-                            {
-                                _existingGoto = setsToAdd.FirstOrDefault(x => x.IsEqualTo(_goto));
-                                if (_existingGoto == null)
-                                {
-                                    setsToAdd.Add(_goto);
-                                    _existingGoto = _goto;
-                                }
-                            }
-
-                            if (!set.Transitions.ContainsKey(symbol))
-                            {
-                                set.Transitions.Add(symbol, _existingGoto);
-                            }
-                        }
-                    }
-                }
-
-                if (setsToAdd.Count == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    C.AddRange(setsToAdd);
-                }
-            }
-
-            return C;
+            return this.GetSequenceHashCode();
         }
 
         public List<LookaheadPropogation> DetermineLookaheads(ExpressionDefinition x)
@@ -104,7 +46,8 @@ namespace Compiler.Parser.Instances
                     new List<Item>()
                     {
                         new Item(item.SubProduction,
-                            new List<TerminalExpressionDefinition>() {
+                            0,
+                            new HashSet<TerminalExpressionDefinition>() {
                                 new TerminalExpressionDefinition {
                                     TokenType = TokenType.Hash
                                 }
@@ -122,18 +65,10 @@ namespace Compiler.Parser.Instances
 
                         if (!closureItem.Lookahead.Any(y => y.TokenType == TokenType.Hash))
                         {
-                            if (i.Id == 1247)
-                            {
-                                ;
-                            }
-                            i.Lookahead.AddRange(closureItem.Lookahead.Except(i.Lookahead));
+                            i.AddLookaheads(closureItem.Lookahead.Except(i.Lookahead));
                         }
                         else
                         {
-                            if (i.Id == 1247)
-                            {
-                                ;
-                            }
                             result.Add(new LookaheadPropogation
                             {
                                 FromItem = item,
@@ -151,6 +86,11 @@ namespace Compiler.Parser.Instances
 
         public ItemSet Closure()
         {
+            if(_closure != null)
+            {
+                return _closure;
+            }
+
             ItemSet set = Clone();
 
             bool addedItem = true;
@@ -165,39 +105,22 @@ namespace Compiler.Parser.Instances
 
                     foreach (Item i in closure)
                     {
-                        if (!set.Any(x => x.SubProduction == i.SubProduction
-                        && x.DotIndex == i.DotIndex
-                        && AreLookaheadsEqual(x.Lookahead, i.Lookahead)))
+                        if (set.Add(i))
                         {
-                            set.Add(i);
+                            //set.TryAddItem(i);
                             addedItem = true;
                         }
                         else
                         {
+                            ;
                         }
                     }
                 }
             }
 
+            _closure = set;
+
             return set;
-        }
-
-        private bool AreLookaheadsEqual(List<TerminalExpressionDefinition> list1, List<TerminalExpressionDefinition> list2)
-        {
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-
-            for(int i = 0; i < list1.Count; i++)
-            {
-                if (!list1[i].IsEqualTo(list2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         public ItemSet Goto(ExpressionDefinition expression)
@@ -209,13 +132,67 @@ namespace Compiler.Parser.Instances
                 if (item.ExpressionAfterDot != null
                     && item.ExpressionAfterDot.IsEqualTo(expression))
                 {
-                    Item cloned = item.Clone();
-                    cloned.Next();
+                    Item cloned = item.Clone(true);
                     result.Add(cloned);
                 }
             }
 
             return result.Closure();
+        }
+
+        public List<ItemSet> GetCanonicalSets(List<ExpressionDefinition> symbols)
+        {
+            List<ItemSet> C = new List<ItemSet>();
+            Dictionary<int, ItemSet> setKeys = new Dictionary<int, ItemSet>();
+            setKeys.Add(GetHashCode(), this);
+            C.Add(this);
+            List<ItemSet> lastNewsets = new List<ItemSet>();
+            lastNewsets.Add(this);
+            while (true)
+            {
+                List<ItemSet> setsToAdd = new List<ItemSet>();
+                foreach (ItemSet set in lastNewsets)
+                {
+                    foreach (ExpressionDefinition symbol in symbols)
+                    {
+                        ItemSet _goto = set.Goto(symbol);
+
+                        if (_goto.Count > 0)
+                        {
+                            ItemSet gotoSet;
+
+                            if (setKeys.TryGetValue(_goto.GetHashCode(), out ItemSet existingGoto))
+                            {
+                                gotoSet = existingGoto;
+                            }
+                            else
+                            {
+                                gotoSet = _goto;
+                                setsToAdd.Add(_goto);
+                                setKeys.Add(_goto.GetHashCode(), _goto);
+                            }
+
+                            if (!set.Transitions.ContainsKey(symbol))
+                            {
+                                set.Transitions.Add(symbol, gotoSet);
+                            }
+                        }
+                    }
+                }
+
+                lastNewsets = setsToAdd.ToList();
+
+                if (setsToAdd.Count == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    C.AddRange(setsToAdd);
+                }
+            }
+
+            return C;
         }
 
         public List<Item> NonKernelItems()
@@ -236,14 +213,6 @@ namespace Compiler.Parser.Instances
             }
 
             return result;
-        }
-
-        public void RemoveNonKernels()
-        {
-            foreach(Item item in NonKernelItems())
-            {
-                Remove(item);
-            }
         }
 
         public ItemSet Clone()
@@ -270,11 +239,6 @@ namespace Compiler.Parser.Instances
             result += "\"]\r\n";
 
             return result.Replace("-", "\\-").Replace(">","\\>");
-        }
-
-        public ItemSet GetGoto(NonTerminalExpressionDefinition target)
-        {
-            return Transitions.First(x => x.Key.IsEqualTo(target)).Value;
         }
     }
 }

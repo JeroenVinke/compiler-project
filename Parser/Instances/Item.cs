@@ -7,39 +7,71 @@ namespace Compiler.Parser.Instances
 {
     public class Item : List<ExpressionDefinition>
     {
-        public SubProduction SubProduction { get; set; }
+        public SubProduction SubProduction {
+            get
+            {
+                return SubProduction.AllSubProductions[SubProductionId];
+            }
+        }
+        public int SubProductionId { get; private set; }
+        public int DotIndex { get; private set; }
+        public HashSet<TerminalExpressionDefinition> Lookahead { get; set; }
 
-        public int DotIndex { get; set; } = 0;
-        public List<TerminalExpressionDefinition> Lookahead { get; set; }
-        public ExpressionDefinition ExpressionAfterDot => WithoutActions().Count > DotIndex ? WithoutActions().ElementAt(DotIndex) : null;
-
-        public List<ExpressionDefinition> SpontaneousLookaheads { get; set; } = new List<ExpressionDefinition>();
-        public List<ExpressionDefinition> PropogatedLookaheads { get; set; } = new List<ExpressionDefinition>();
+        public ExpressionDefinition ExpressionAfterDot { get; private set; }
 
         private ItemSet _closure = null;
-        public int Id { get; set; }
+        public int Id { get; private set; }
         public static int MaxId = 0;
 
-        public Item(SubProduction subProduction, List<TerminalExpressionDefinition> lookahead = null)
+        public Item(SubProduction subProduction, int dotIndex, HashSet<TerminalExpressionDefinition> lookahead = null)
+            : this(subProduction.Id, dotIndex, lookahead)
         {
-            SubProduction = subProduction;
-            Lookahead = lookahead ?? new List<TerminalExpressionDefinition>();
+        }
+
+        public Item(int subProductionId, int dotIndex, HashSet<TerminalExpressionDefinition> lookahead = null)
+        {
+            SubProductionId = subProductionId;
+            DotIndex = dotIndex;
+            Lookahead = lookahead ?? new HashSet<TerminalExpressionDefinition>();
             Id = MaxId++;
 
-            if (Id == 3974)
-            {
-                ;
-            }
-
-            foreach (ExpressionDefinition expressionDefinition in subProduction)
+            int i = 0;
+            foreach (ExpressionDefinition expressionDefinition in SubProduction)
             {
                 Add(expressionDefinition);
+
+                if (ExpressionAfterDot == null)
+                {
+                    if (!(expressionDefinition is SemanticActionDefinition)
+                        && !(expressionDefinition is TerminalExpressionDefinition ted && ted.TokenType == TokenType.EmptyString))
+                    {
+                        if (DotIndex == i)
+                        {
+                            ExpressionAfterDot = expressionDefinition;
+                        }
+
+                        i++;
+                    }
+                }
             }
         }
 
-        public void Next()
+        public void AddLookaheads(IEnumerable<TerminalExpressionDefinition> lookaheads)
         {
-            DotIndex++;
+            foreach(TerminalExpressionDefinition lookahead in lookaheads)
+            {
+                Lookahead.Add(lookahead);
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj.GetHashCode() == GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SubProductionId, DotIndex, Lookahead.GetSequenceHashCode());
         }
 
         public ItemSet Closure()
@@ -49,8 +81,16 @@ namespace Compiler.Parser.Instances
                 return _closure;
             }
 
-            _closure = new ItemSet();
-            _closure.Add(Clone());
+            _closure = new ItemSet(new List<Item> { Clone() });
+
+            List<ExpressionDefinition> tail = WithoutActions().Skip(DotIndex + 1).ToList();
+
+            if (Lookahead != null)
+            {
+                tail.AddRange(Lookahead);
+            }
+
+            ExpressionSet firstTail = First(tail);
 
             if (ExpressionAfterDot is NonTerminalExpressionDefinition a)
             {
@@ -60,23 +100,10 @@ namespace Compiler.Parser.Instances
                     {
                         foreach (SubProduction subProduction in production)
                         {
-                            List<ExpressionDefinition> tail = WithoutActions().Skip(DotIndex + 1).ToList();
-
-                            if (Lookahead != null)
+                            foreach (TerminalExpressionDefinition ted in firstTail)
                             {
-                                tail.AddRange(Lookahead);
-                            }
-
-                            foreach (TerminalExpressionDefinition ted in First(tail))
-                            {
-                                Item itemToAdd = new Item(subProduction, new List<TerminalExpressionDefinition> { ted });
+                                Item itemToAdd = new Item(subProduction, 0, new HashSet<TerminalExpressionDefinition> { ted });
                                 _closure.Add(itemToAdd);
-
-                                //if (!_closure.Any(x => x.SubProduction == subProduction && x.DotIndex == 0))
-                                //{
-                                //    Item itemToAdd = new Item(subProduction, new List<TerminalExpressionDefinition> { ted });
-                                //    _closure.Add(itemToAdd);
-                                //}
                             }
                         }
                     }
@@ -96,7 +123,7 @@ namespace Compiler.Parser.Instances
                 if (previousCanBeEmpty)
                 {
                     ExpressionSet first = expressionDefinition.First();
-                    result.AddRange(first.Where(x => x.TokenType != TokenType.EmptyString));
+                    result.AddRangeUnique(first.Where(x => x.TokenType != TokenType.EmptyString));
 
                     if (!first.Any(x => x.TokenType == TokenType.EmptyString))
                     {
@@ -137,14 +164,9 @@ namespace Compiler.Parser.Instances
             return true;
         }
 
-        public Item Clone()
+        public Item Clone(bool incrementDotIndex = false)
         {
-            Item item = new Item(SubProduction, Lookahead.ToList());
-            if (item.Id == 1247)
-            {
-                ;
-            }
-            item.DotIndex = DotIndex;
+            Item item = new Item(SubProduction, incrementDotIndex ? DotIndex + 1 : DotIndex, Lookahead.ToHashSet());
             return item;
         }
 
@@ -184,8 +206,7 @@ namespace Compiler.Parser.Instances
 
         internal bool IsDotIndexAtEnd()
         {
-            return DotIndex >= WithoutActions().Count;
-            //return WithoutActions().Count
+            return ExpressionAfterDot == null;
         }
     }
 }

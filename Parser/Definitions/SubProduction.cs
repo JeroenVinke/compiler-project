@@ -5,9 +5,16 @@ namespace Compiler.Parser
 {
     public class SubProduction : List<ExpressionDefinition>
     {
+        public static int MaxId = 0;
+        public int Id { get; set; }
+        public static Dictionary<int, SubProduction> AllSubProductions { get; set; } = new Dictionary<int, SubProduction>();
+
         public SubProduction(IEnumerable<ExpressionDefinition> collection) : base(collection)
         {
-            ForEach(x => x.SubProduction = this);
+            Id = ++MaxId;
+            ForEach(x => x.SubProductionId = this.Id);
+
+            AllSubProductions.Add(Id, this);
         }
 
         public Production Production { get; internal set; }

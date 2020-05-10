@@ -29,6 +29,11 @@ namespace Compiler.Parser
             return TokenType.GetName(typeof(TokenType), TokenType).ToString();
         }
 
+        public override int GetHashCode()
+        {
+            return TokenType.GetHashCode();
+        }
+
         public override bool IsEqualTo(ExpressionDefinition definition)
         {
             if (definition is TerminalExpressionDefinition nte)

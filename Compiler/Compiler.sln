@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegularExpressionEngine.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JeroenCompilerFrontend", "..\JeroenCompilerFrontend\JeroenCompilerFrontend.csproj", "{A6A745ED-73EF-491E-9EB5-02CD877EB55D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGeneration", "..\CodeGenerator\CodeGeneration.csproj", "{8C5AA73A-F909-4613-AC65-A62C21699BC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeGeneration", "..\CodeGenerator\CodeGeneration.csproj", "{8C5AA73A-F909-4613-AC65-A62C21699BC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser.Tests", "..\Parser.Tests\Parser.Tests.csproj", "{1FBB2B43-236E-4E94-A7DB-F99DCD468E62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{8C5AA73A-F909-4613-AC65-A62C21699BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C5AA73A-F909-4613-AC65-A62C21699BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C5AA73A-F909-4613-AC65-A62C21699BC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FBB2B43-236E-4E94-A7DB-F99DCD468E62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FBB2B43-236E-4E94-A7DB-F99DCD468E62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FBB2B43-236E-4E94-A7DB-F99DCD468E62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FBB2B43-236E-4E94-A7DB-F99DCD468E62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

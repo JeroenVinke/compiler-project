@@ -6,44 +6,49 @@ using System.Linq;
 
 namespace Compiler.Parser
 {
-    public class ParsingTable : List<ParsingTableEntry>
+    public class ParsingTable
     {
-        public static ParsingTable Create(List<ItemSet> C,
+        private Dictionary<int, ParsingTableSegment> Segments = new Dictionary<int, ParsingTableSegment>();
+
+        public ParsingTable(List<ItemSet> C,
             List<ExpressionDefinition> symbols,
             Func<ActionParsingTableEntry, bool> shift,
             Func<ActionParsingTableEntry, bool> accept,
             Func<ActionParsingTableEntry, bool> reduce)
         {
-            ParsingTable parsingTable = new ParsingTable();
+            Dictionary<string, ExpressionSet> follows = new Dictionary<string, ExpressionSet>();
 
             // Actions
             foreach (ItemSet set in C)
             {
-                if (set.Id == 18552)
-                {
-                    ;
-                }
-
                 foreach (Item item in set)
                 {
                     if (item.ExpressionAfterDot != null
                         && item.ExpressionAfterDot is TerminalExpressionDefinition ted)
                     {
-                        AddActionEntry(item, parsingTable, shift, "s", set, item.ExpressionAfterDot as TerminalExpressionDefinition);
+                        AddActionEntry(item, shift, "s", set, item.ExpressionAfterDot as TerminalExpressionDefinition);
                     }
                     else if (item.SubProduction.Production.Identifier == ParserConstants.Initial)
                     {
                         TerminalExpressionDefinition expressionDefinition = item.ExpressionAfterDot as TerminalExpressionDefinition;
                         expressionDefinition = expressionDefinition ?? new TerminalExpressionDefinition() { TokenType = TokenType.EndMarker };
 
-                        AddActionEntry(item, parsingTable, accept, "a",  set, expressionDefinition);
+                        AddActionEntry(item, accept, "a",  set, expressionDefinition);
                     }
                     else if (item.IsDotIndexAtEnd())
                     {
                         string identifier = item.SubProduction.Production.Identifier;
-                        foreach (TerminalExpressionDefinition ted1 in new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow())
+                        ExpressionSet follow;
+
+                        if (!follows.TryGetValue(identifier, out follow))
                         {
-                            AddActionEntry(item, parsingTable, reduce, "r", set, ted1);
+                            follow = new NonTerminalExpressionDefinition() { Identifier = identifier }.Follow();
+                            follows.Add(identifier, follow);
+                        }
+
+                        foreach (TerminalExpressionDefinition ted1 in follow)
+                        {
+                            AddActionEntry(item, reduce, "r", set, ted1);
                         }
                     }
                 }
@@ -56,7 +61,7 @@ namespace Compiler.Parser
                 {
                     if (set.Transitions.Any(x => x.Key.IsEqualTo(symbol)))
                     {
-                        parsingTable.Add(new GotoParsingTableEntry
+                        GetOrCreateSegment(set).Entries.Add(new GotoParsingTableEntry
                         {
                             ExpressionDefinition = symbol,
                             ItemSet = set,
@@ -65,20 +70,36 @@ namespace Compiler.Parser
                     }
                 }
             }
-
-            return parsingTable;
         }
 
-        private static void AddActionEntry(Item item, ParsingTable parsingTable, Func<ActionParsingTableEntry, bool> action, string actionDescription, ItemSet set, TerminalExpressionDefinition expressionDefinition)
+        private ParsingTableSegment GetOrCreateSegment(ItemSet set)
         {
-            ActionParsingTableEntry existingEntry = (ActionParsingTableEntry)parsingTable.FirstOrDefault(x =>
+            if (Segments.TryGetValue(set.Id, out ParsingTableSegment existingSegment))
+            {
+                return existingSegment;
+            }
+
+            ParsingTableSegment segment = new ParsingTableSegment
+            {
+                Set = set
+            };
+
+            Segments.Add(set.Id, segment);
+
+            return segment;
+        }
+
+        private void AddActionEntry(Item item, Func<ActionParsingTableEntry, bool> action, string actionDescription, ItemSet set, TerminalExpressionDefinition expressionDefinition)
+        {
+            ParsingTableSegment segment = GetOrCreateSegment(set);
+
+            ActionParsingTableEntry existingEntry = (ActionParsingTableEntry)segment.Entries.FirstOrDefault(x =>
                                         x is ActionParsingTableEntry apte
-                                        && apte.ItemSet == set
                                         && apte.ActionDescription == actionDescription
                                         && apte.ExpressionDefinition.IsEqualTo(expressionDefinition));
             if (existingEntry == null)
             {
-                parsingTable.Add(new ActionParsingTableEntry
+                segment.Entries.Add(new ActionParsingTableEntry
                 {
                     ItemSet = set,
                     ExpressionDefinition = expressionDefinition,
@@ -97,63 +118,68 @@ namespace Compiler.Parser
         {
             string result = "1111 [shape=plaintext,label=<<table>";
 
-            result += "<tr><td></td>";
-            foreach (ExpressionDefinition symbol in symbols.Where(x => x is TerminalExpressionDefinition))
-            {
-                result += $"<td>{symbol.Key}</td>";
-            }
-            result += $"<td></td>";
-            foreach (NonTerminalExpressionDefinition symbol in symbols.Where(x => x is NonTerminalExpressionDefinition))
-            {
-                result += $"<td>{symbol.Key}</td>";
-            }
-            result += "</tr>";
+            //result += "<tr><td></td>";
+            //foreach (ExpressionDefinition symbol in symbols.Where(x => x is TerminalExpressionDefinition))
+            //{
+            //    result += $"<td>{symbol.Key}</td>";
+            //}
+            //result += $"<td></td>";
+            //foreach (NonTerminalExpressionDefinition symbol in symbols.Where(x => x is NonTerminalExpressionDefinition))
+            //{
+            //    result += $"<td>{symbol.Key}</td>";
+            //}
+            //result += "</tr>";
 
-            foreach (ItemSet set in states)
-            {
-                string row = $"<tr><td>{set.Id}</td>";
+            //foreach (ItemSet set in states)
+            //{
+            //    string row = $"<tr><td>{set.Id}</td>";
 
-                foreach (ExpressionDefinition definition in symbols.Where(x => x is TerminalExpressionDefinition))
-                {
-                    var action = this.FirstOrDefault(x => x is ActionParsingTableEntry  a
-                        && a.ItemSet == set 
-                        && a.ExpressionDefinition.IsEqualTo(definition));
+            //    foreach (ExpressionDefinition definition in symbols.Where(x => x is TerminalExpressionDefinition))
+            //    {
+            //        var action = this.FirstOrDefault(x => x is ActionParsingTableEntry  a
+            //            && a.ItemSet == set 
+            //            && a.ExpressionDefinition.IsEqualTo(definition));
 
-                    if(action != null)
-                    {
-                        row += $"<td>{action.ShortDescription()}</td>";
-                    }
-                    else
-                    {
-                        row += $"<td></td>";
-                    }
-                }
+            //        if(action != null)
+            //        {
+            //            row += $"<td>{action.ShortDescription()}</td>";
+            //        }
+            //        else
+            //        {
+            //            row += $"<td></td>";
+            //        }
+            //    }
 
-                row += $"<td></td>";
+            //    row += $"<td></td>";
 
-                foreach (NonTerminalExpressionDefinition definition in symbols.Where(x => x is NonTerminalExpressionDefinition))
-                {
-                    var @goto = this.FirstOrDefault(x => x is GotoParsingTableEntry a
-                        && a.ItemSet == set
-                        && a.ExpressionDefinition.IsEqualTo(definition));
+            //    foreach (NonTerminalExpressionDefinition definition in symbols.Where(x => x is NonTerminalExpressionDefinition))
+            //    {
+            //        var @goto = this.FirstOrDefault(x => x is GotoParsingTableEntry a
+            //            && a.ItemSet == set
+            //            && a.ExpressionDefinition.IsEqualTo(definition));
 
-                    if (@goto != null)
-                    {
-                        row += $"<td>{@goto.ShortDescription()}</td>";
-                    }
-                    else
-                    {
-                        row += $"<td></td>";
-                    }
-                }
+            //        if (@goto != null)
+            //        {
+            //            row += $"<td>{@goto.ShortDescription()}</td>";
+            //        }
+            //        else
+            //        {
+            //            row += $"<td></td>";
+            //        }
+            //    }
 
-                row += "</tr>";
-                result += row;
-            }
+            //    row += "</tr>";
+            //    result += row;
+            //}
 
             result += "</table>>]\r\n";
 
             return result;
+        }
+
+        public ParsingTableSegment GetSegment(ItemSet itemSet)
+        {
+            return Segments[itemSet.Id];
         }
     }
 }

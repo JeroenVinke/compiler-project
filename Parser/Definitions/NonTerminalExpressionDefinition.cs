@@ -9,7 +9,6 @@ namespace Compiler.Parser
     public class NonTerminalExpressionDefinition : ExpressionDefinition
     {
         private string identifier;
-
         public string Identifier
         {
             get => identifier;
@@ -22,6 +21,8 @@ namespace Compiler.Parser
                 }
             }
         }
+
+        private ExpressionSet _first;
 
         public ExpressionSet Follow()
         {
@@ -99,15 +100,20 @@ namespace Compiler.Parser
 
         public override ExpressionSet First()
         {
+            if (_first != null)
+            {
+                return _first;
+            }
+
             ExpressionSet result = new ExpressionSet();
 
-            if (Grammar.Instance.Any(x => x.Identifier == Identifier
-                && x.Any(y => y.Count == 1
-                && y.First() is TerminalExpressionDefinition te
-                && te.TokenType == TokenType.EmptyString)))
-            {
-                result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EmptyString });
-            }
+            //if (Grammar.Instance.Any(x => x.Identifier == Identifier
+            //    && x.Any(y => y.Count == 1
+            //    && y.First() is TerminalExpressionDefinition te
+            //    && te.TokenType == TokenType.EmptyString)))
+            //{
+            //    result.Add(new TerminalExpressionDefinition { TokenType = TokenType.EmptyString });
+            //}
 
             foreach (SubProduction subProduction in Grammar.Instance.First(x => x.Identifier == Identifier))
             {
@@ -130,6 +136,8 @@ namespace Compiler.Parser
                     }
                 }
             }
+
+            _first = result;
 
             return result;
         }
