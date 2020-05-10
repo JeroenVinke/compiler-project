@@ -17,9 +17,13 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
         public override Address GenerateCode(List<Instruction> instructions)
         {
+            Label rightLabel = new Label();
+
             Left.GenerateCode(instructions);
             FalseList.AddRange(Left.FalseList);
+            Left.Backpatch(rightLabel, null);
 
+            instructions.Add(new LabelInstruction(rightLabel));
             Right.GenerateCode(instructions);
             TrueList.AddRange(Right.TrueList);
             FalseList.AddRange(Right.FalseList);

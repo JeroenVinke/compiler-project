@@ -1,4 +1,5 @@
-﻿using Compiler.Common;
+﻿
+using Compiler.Common;
 using Compiler.Common.Instructions;
 using System.Collections.Generic;
 

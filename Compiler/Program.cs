@@ -1,10 +1,7 @@
 ﻿using Compiler.CodeGeneration;
-using Compiler.Common;
-using Compiler.Common.Instructions;
 using Compiler.LexicalAnalyer;
 using Compiler.Parser;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 

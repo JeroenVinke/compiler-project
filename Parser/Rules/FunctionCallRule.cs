@@ -19,14 +19,13 @@ namespace Compiler.Parser.Rules
             (
                 new List<ExpressionDefinition>
                 {
-                    //new NonTerminalExpressionDefinition { Identifier = ParserConstants.Identifier },
                     new TerminalExpressionDefinition { TokenType = TokenType.Identifier },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
                         SymbolTable symbolTable = node.CurrentSymbolTable;
                         string key = node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token).Lexeme;
 
-                        SymbolTableEntry entry = symbolTable.GetOrThrow(key, out entry);
+                        SymbolTableEntry entry = symbolTable.GetOrThrow(key);
 
                         node.GetNodeForKey("Identifier").Attributes.Add(ParserConstants.SymbolTableEntry, entry);
                         node.GetNodeForKey("Identifier").Attributes.Add(ParserConstants.SyntaxTreeNode, new IdentifierASTNode() { SymbolTableEntry = entry });

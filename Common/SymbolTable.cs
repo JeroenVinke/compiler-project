@@ -65,12 +65,11 @@ namespace Compiler.Common
             return st;
         }
 
-        public SymbolTableEntry GetOrThrow(string key, out SymbolTableEntry entry)
+        public SymbolTableEntry GetOrThrow(string key)
         {
             if (Get(key, out SymbolTableEntry result))
             {
-                entry = result;
-                return entry;
+                return result;
             }
 
             throw new Exception($"{key} not found in the symbol table");

@@ -15,19 +15,6 @@ namespace Compiler.Common
             Id = ++MaxId;
         }
 
-        public void ReplaceJumpsToBlocks(List<Block> blocks)
-        {
-            foreach (Instruction instruction in Instructions)
-            {
-                if (instruction is JumpInstruction jumpInstruction)
-                {
-                    Block targetBlock = blocks.First(x => x.Instructions.First() is LabelInstruction labelInstruction
-                    && labelInstruction.Label == jumpInstruction.Label);
-                    jumpInstruction.TargetBlock = targetBlock;
-                }
-            }
-        }
-
         public List<Address> GetVariables()
         {
             List<Address> variables = new List<Address>();

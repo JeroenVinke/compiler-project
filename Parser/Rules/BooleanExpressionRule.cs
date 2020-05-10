@@ -168,7 +168,7 @@ namespace Compiler.Parser.Rules
                 {
                     new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
                     new TerminalExpressionDefinition { TokenType = TokenType.And },
-                    new NonTerminalExpressionDefinition { Identifier = ParserConstants.BooleanExpression },
+                    new NonTerminalExpressionDefinition { Key = "BooleanExpression2", Identifier = ParserConstants.BooleanExpression },
                     new SemanticActionDefinition((ParsingNode node) =>
                     {
                         BooleanExpressionASTNode left = node.GetAttributeForKey<BooleanExpressionASTNode>(ParserConstants.BooleanExpression, ParserConstants.SyntaxTreeNode);

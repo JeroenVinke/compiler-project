@@ -1,4 +1,7 @@
-﻿using Compiler.Common;
+﻿using Compiler.CodeGeneration;
+using Compiler.CodeGeneration.Operations;
+using Compiler.Common;
+using Compiler.Common.Instructions;
 using Compiler.LexicalAnalyer;
 using Compiler.Parser;
 using Compiler.RegularExpressionEngine;
@@ -17,13 +20,13 @@ namespace JeroenCompilerAPI.Controllers
         public CompilationResult Compile([FromBody]CompilationRequest request)
         {
             CompilationResult result = new CompilationResult();
-
             LexicalAnalyzer analyzer = new LexicalAnalyzer(LexicalLanguage.GetLanguage(), request.Input);
             BottomUpParser parser = new BottomUpParser(analyzer);
 
             parser.Parse();
 
-            result.IL = parser.GetIL();
+            result.IL = parser.GetILAsString();
+            result.Assembly = CodeGenerator.GenerateAsString(parser.GetIL());
 
             return result;
         }
@@ -160,6 +163,7 @@ namespace JeroenCompilerAPI.Controllers
     public class CompilationResult
     {
         public string IL { get; set; }
+        public string Assembly { get; set; }
     }
 
     public class LexicalAnalyzerRequest

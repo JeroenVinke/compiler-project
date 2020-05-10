@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CodeGenerator\CodeGeneration.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\Compiler\Compiler.csproj" />
     <ProjectReference Include="..\LexicalAnalyer\LexicalAnalyer.csproj" />

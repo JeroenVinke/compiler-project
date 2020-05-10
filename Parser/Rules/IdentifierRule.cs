@@ -23,7 +23,7 @@ namespace Compiler.Parser.Rules
                         SymbolTable symbolTable = node.CurrentSymbolTable;
                         string key = node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token).Lexeme;
 
-                        SymbolTableEntry entry = symbolTable.GetOrThrow(key, out entry);
+                        SymbolTableEntry entry = symbolTable.GetOrThrow(key);
 
                         node.Attributes.Add(ParserConstants.SymbolTableEntry, entry);
                         node.Attributes.Add(ParserConstants.Token, node.GetAttributeForKey<WordToken>(ParserConstants.Identifier, ParserConstants.Token));

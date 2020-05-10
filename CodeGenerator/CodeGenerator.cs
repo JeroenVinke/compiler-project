@@ -9,23 +9,10 @@ namespace Compiler.CodeGeneration
 {
     public static class CodeGenerator
     {
-
-        public static int RSP = 0;
-        public static int RBP = 0;
-
-        public static void Generate(List<Instruction> instructions)
+        public static List<AssemblyOperation> Generate(List<Instruction> instructions)
         {
-            List<Instruction> leaders = GetLeaders(instructions);
-
-            List<Block> blocks = GetBlocks(instructions, leaders);
-
-            foreach (Block block in blocks)
-            {
-                block.ReplaceJumpsToBlocks(blocks);
-            }
-
+            List<Block> blocks = GetBlocks(instructions);
             List<AssemblyOperation> operations = new List<AssemblyOperation>();
-
 
             foreach (Block block in blocks)
             {
@@ -48,18 +35,14 @@ namespace Compiler.CodeGeneration
 
                         operations.Add(new PushOperation()
                         {
-                            Target = "RBP"
+                            Target = Registers.RBP.Name
                         });
-
-                        RSP -= 4;
 
                         operations.Add(new MoveOperation()
                         {
-                            Value = "RSP",
-                            Target = "RBP"
+                            Value = Registers.RSP.Name,
+                            Target = Registers.RBP.Name
                         });
-
-                        RBP = RSP;
 
                         int blockSize = block.GetSize();
 
@@ -68,10 +51,8 @@ namespace Compiler.CodeGeneration
                             operations.Add(new SubtractOperation()
                             {
                                 Value = "" + blockSize,
-                                Target = "RSP"
+                                Target = Registers.RSP.Name
                             });
-
-                            RSP -= blockSize;
                         }
 
                         foreach (SymbolTableEntry symbolTableEntry in functionInstruction.Arguments)
@@ -113,9 +94,30 @@ namespace Compiler.CodeGeneration
                                 Label = ifJumpInstruction.Label.ToString()
                             });
                         }
+                        else if (ifJumpInstruction.RelOp == ">")
+                        {
+                            operations.Add(new JumpGreaterThanOperation()
+                            {
+                                Label = ifJumpInstruction.Label.ToString()
+                            });
+                        }
                         else if (ifJumpInstruction.RelOp == ">=")
                         {
                             operations.Add(new JumpGreaterEqualThanOperation()
+                            {
+                                Label = ifJumpInstruction.Label.ToString()
+                            });
+                        }
+                        else if (ifJumpInstruction.RelOp == "<=")
+                        {
+                            operations.Add(new JumpLessEqualThanOperation()
+                            {
+                                Label = ifJumpInstruction.Label.ToString()
+                            });
+                        }
+                        else if (ifJumpInstruction.RelOp == "==")
+                        {
+                            operations.Add(new JumpEqualToOperation()
                             {
                                 Label = ifJumpInstruction.Label.ToString()
                             });
@@ -157,25 +159,21 @@ namespace Compiler.CodeGeneration
                             Target = Registers.EAX.Name
                         });
 
+                        // EAX is the return value 
+                        // so the address that was previously in EAX
+                        // is probably no longer in EAX
                         Registers.EAX.Clear();
-
-                        RSP = RBP;
 
                         operations.Add(new MoveOperation()
                         {
-                            Value = "RBP",
-                            Target = "RSP"
+                            Value = Registers.RBP.Name,
+                            Target = Registers.RSP.Name
                         });
-
-                        RSP = RBP;
 
                         operations.Add(new PopOperation()
                         {
-                            Target = "RBP"
+                            Target = Registers.RBP.Name
                         });
-
-                        RBP = RSP;
-                        RSP += 4;
 
                         operations.Add(new ReturnOperation());
                     }
@@ -207,8 +205,6 @@ namespace Compiler.CodeGeneration
                         {
                             Label = callInstruction.Label.ToString()
                         });
-
-                        RSP -= 8;
                     }
                     else if (instruction is JumpInstruction jumpInstruction)
                     {
@@ -216,18 +212,23 @@ namespace Compiler.CodeGeneration
                         {
                             Label = jumpInstruction.Label.ToString()
                         });
-
-                        RSP -= 8;
                     }
                 }
             }
 
-            foreach (AssemblyOperation operation in operations)
+            return operations;
+        }
+
+        public static string GenerateAsString(List<Instruction> instructions)
+        {
+            string result = "";
+
+            foreach(AssemblyOperation assemblyOperation in Generate(instructions))
             {
-                Console.WriteLine(operation);
+                result += assemblyOperation.ToString() + System.Environment.NewLine;
             }
 
-            ;
+            return result;
         }
 
         private static void AllocateRegisters(ref int relativeAddress, List<AssemblyOperation> operations, Instruction instruction)
@@ -332,10 +333,13 @@ namespace Compiler.CodeGeneration
             return false;
         }
 
-        private static List<Block> GetBlocks(List<Instruction> instructions, List<Instruction> leaders)
+        private static List<Block> GetBlocks(List<Instruction> instructions)
         {
+            List<Instruction> leaders = GetLeaders(instructions);
             List<Block> blocks = new List<Block>();
+
             Block currentBlock = null;
+
             foreach (Instruction instruction in instructions)
             {
                 if (leaders.Contains(instruction))

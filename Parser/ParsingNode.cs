@@ -91,6 +91,7 @@ namespace Compiler.Parser
                 return;
             }
 
+            int i = 0;
             foreach(ExpressionDefinition expressionDefinition in SubProduction)
             {
                 if (expressionDefinition is SemanticActionDefinition sa)
@@ -101,13 +102,19 @@ namespace Compiler.Parser
                 {
                     if (!(expressionDefinition is TerminalExpressionDefinition ted && ted.TokenType == TokenType.EmptyString))
                     {
-                        ParsingNode child = Children.First(x => x.Expression.Key == expressionDefinition.Key);
+                        ParsingNode child1 = Children.First(x => x.Expression.Key == expressionDefinition.Key);
+                        ParsingNode child = Children[i];
+                        if (child != child1)
+                        {
+                            ;
+                        }
 
                         if (child.Expression is NonTerminalExpression)
                         {
                             child.EvaluateAttributes();
                         }
                     }
+                    i++;
                 }
             }
         }

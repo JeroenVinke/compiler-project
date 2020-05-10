@@ -62,6 +62,7 @@ namespace Compiler.Parser
             PropogateLookaheads(GrammarSymbols);
         }
 
+
         public string GetAutomaton()
         {
             return Dotify(CanonicalSets.First());
