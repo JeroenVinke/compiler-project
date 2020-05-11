@@ -7,7 +7,7 @@ export class Home extends Component {
     return (
       <div>
         <h1>Compiler</h1>
-        <p>This is a demo of my topdown LR(1) shift reduce parser with a handwritten regex engine.</p>
+        <p>This is a demo of my bottom-up LR(1) shift reduce parser with a handwritten regex engine.</p>
         <p>Techniques from the book Compilers: Principles, Techniques, &amp; Tools by Alfred V. Aho et al</p>
         
         <h2>General process</h2>
