@@ -51,6 +51,11 @@ export class NavMenu extends Component {
                 <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/ast">AST</NavLink>
                 </NavItem>
+                <NavItem>
+                    <a className="text-dark nav-link" href="https://github.com/JeroenVinke/compiler-project">
+                        Code (GitHub)
+                    </a>
+                </NavItem>
               </ul>
             </Collapse>
           </Container>
