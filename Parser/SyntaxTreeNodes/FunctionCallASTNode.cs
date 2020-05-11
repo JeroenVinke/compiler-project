@@ -29,7 +29,7 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
             instructions.Add(new CallInstruction(Target.Label));
 
-            return Registers.EAX;
+            return new Address();
         }
 
         public override string ToString()

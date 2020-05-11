@@ -48,7 +48,7 @@ export class Tokenizer extends Component {
 
     render() {
         return (
-            <div className="repl">
+            <div className="tokenizer">
                 <h1>Tokenizer</h1>
 
                 <div className="row">
@@ -76,7 +76,7 @@ export class Tokenizer extends Component {
                             {
                                 this.state.tokens.map(token => {
                                   return (
-                                      <p>&lt;{token.type}, {token.value}>&gt;</p>
+                                      <p>&lt;{token.type}, {token.value}&gt;</p>
                                   );
                                 })
                             }

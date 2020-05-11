@@ -9,42 +9,15 @@ export class Automaton extends Component {
     }
 
     componentDidMount() {
-        this.getAutomaton();
-    }
-
-    getAutomaton() {
-      fetch("/api/compiler/automaton")
-        .then(res => res.json())
-          .then(res => {
-             let viz = new window.Viz({ workerURL: 'full.render.js'} );
-
-             viz.renderSVGElement(res.automaton)
-            .then(element => {
-                this.refs.graphContainer.append(element);
-                this.setState({ loading: false });
-            })
-            .catch(error => {
-                viz = new window.Viz({ workerURL: 'full.render.js'} );
-                console.error(error);
-            });
-
-        });
     }
 
     render() {
         return (
             <div className="automaton">
                 <h1>Automaton</h1>
-
-                {
-                  this.state.loading && <p>Loading....</p>
-                }
-
-                {
-                  !this.state.loading && <p>Scroll to the right</p>
-                }
-
+                <p>Image may take a while to load</p>
                 <div ref="graphContainer" className="graphContainer">
+                  <img src="automaton.svg" alt=""/>
                 </div>
             </div>
         );

@@ -19,5 +19,10 @@ namespace Compiler.Parser.SyntaxTreeNodes
 
             return base.GenerateCode(instructions);
         }
+
+        public override string ToString()
+        {
+            return "Return";
+        }
     }
 }

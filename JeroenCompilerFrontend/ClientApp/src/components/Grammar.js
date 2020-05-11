@@ -24,11 +24,20 @@ export class Grammar extends Component {
         return (
             <div className="grammar">
                 <h1>Grammar</h1>
+                <p>Each line contains a production head (written in bold) and a production body (everything after the -&gt;).<br/>
+                Terms in the production body written italic are non terminal expressions. These can be replaced by a production body which has the term as the production head.</p>
                 {
                     this.state.grammar.map(production => {
                         return production.subProductions.map(subproduction => {
                             return (
-                                <p>{production.head} -> {subproduction.expressions.join(' ')}</p>
+                                <p><span style={{fontWeight: 'bold' }}>{production.head}</span> -&gt; {subproduction.expressions.map(expr => {
+                                  if (expr.isNonTerminalExpression) {
+                                    return <span style={{fontStyle: 'italic' }}>{expr.name}&nbsp;</span>
+                                  }
+                                  else {
+                                    return <span>{expr.name}&nbsp;</span>
+                                  }
+                                })}</p>
                             );
                         });
                     })

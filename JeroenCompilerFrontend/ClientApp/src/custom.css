@@ -80,7 +80,7 @@ code {
             max-width: 33%;
         }
 
-        .regex > .row > .center {
+        .repl > .row > .center {
             display: flex;
             flex-direction: column;
             max-width: 33%;
@@ -95,6 +95,42 @@ code {
         .repl > .row > .left > textarea {
             flex: 1;
         }
+
+
+
+        
+.tokenizer {
+  height: 100%;
+}
+
+  .tokenizer > .row {
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: space-between;
+  }
+
+      .tokenizer > .row > div {
+          flex: 0 0 50%;
+          max-width: 50%;
+      }
+
+      .tokenizer > .row > .left {
+          display: flex;
+          flex-direction: column;
+          max-width: 50%;
+      }
+
+      .tokenizer > .row > .right {
+          display: flex;
+          flex-direction: column;
+          max-width: 50%;
+      }
+
+      .tokenizer > .row > .left > textarea {
+          flex: 1;
+      }
 
 .automaton > .graphContainer {
     width: 100%;

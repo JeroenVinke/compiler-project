@@ -11,7 +11,18 @@ export class AST extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            input: '{\r\n\tint bar;\r\n\r\n\tbar = 0;\r\n\r\n\tif(bar < 10) {\r\n\t\tbar = 1;\r\n\t}\r\n\telse if (bar < 20) {\r\n\t\tbar = 2;\r\n\t}\r\n\telse {\r\n\t\tbar = 3;\r\n\t}\r\n\r\n\tbar = 4;\r\n}',
+            input: 'class MyApplication { \r\n'+
+              '\tvoid add(int a, int b) {\r\n' +
+                '\t\tint result;\r\n' +
+                '\t\tresult = a + b;\r\n' +
+                '\t\treturn result;\r\n' +
+              '\t}\r\n' +
+              '\tvoid main() {\r\n' +
+                '\t\tint result;\r\n' +
+                '\t\tresult = add(5, 10);\r\n' +
+                '\t\treturn result;\r\n' +
+              '\t}\r\n' +
+            '}',
             il: '',
             loading: true
         };
@@ -83,15 +94,17 @@ export class AST extends Component {
 
                     <div className="right">
                         <p>AST</p>
-                        <LoadingOverlay
-                            active={this.state.loading}
-                            spinner
-                            text='Loading.....'
-                            >
-                              { this.state.loading && <p>Loading</p>}
-                              <div ref="graphContainer1" className="graphContainer1">
-                              </div>
-                        </LoadingOverlay>
+                        <div style={{overflwow: 'auto'}}>
+                          <LoadingOverlay
+                              active={this.state.loading}
+                              spinner
+                              text='Loading.....'
+                              >
+                                { this.state.loading && <p>Loading</p>}
+                                <div ref="graphContainer1" className="graphContainer1">
+                                </div>
+                          </LoadingOverlay>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -40,6 +40,11 @@ export class Home extends Component {
         <p><span style={{ fontWeight: 'bold' }}>Description:</span> Based on the <a href="/ast">abstract syntax tree</a>, IL (Intermediate Language) code is generated. The result is <a href="/il">three address code</a>.</p>
         <p><span style={{ fontWeight: 'bold' }}>Input:</span> abstract syntax tree</p>
         <p><span style={{ fontWeight: 'bold' }}>Output:</span> three address code</p>
+
+        <h3>Assembly</h3>
+        <p><span style={{ fontWeight: 'bold' }}>Description:</span> Based on the <a href="/il">IL</a>, <a href="/il">Assembly code</a> is generated.</p>
+        <p><span style={{ fontWeight: 'bold' }}>Input:</span> Intermediate code</p>
+        <p><span style={{ fontWeight: 'bold' }}>Output:</span> Assembly code</p>
       </div>
     );
   }

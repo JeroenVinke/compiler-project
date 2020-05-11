@@ -40,6 +40,28 @@ namespace RegularExpressionEngine.Tests
         }
 
         [Test]
+        [TestCase("foo", SimulationState.Accepting)]
+        [TestCase("foofoofoo", SimulationState.Accepting)]
+        [TestCase("baz", SimulationState.OffTrack)]
+        public void RepetitionStar(string input, SimulationState expectedResult)
+        {
+            SimulationState result = RegexEngine.Simulate("(foo|bar|foobar)*#", input);
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [Test]
+        [TestCase("foo", SimulationState.Accepting)]
+        [TestCase("foofoofoo", SimulationState.Accepting)]
+        [TestCase("baz", SimulationState.OffTrack)]
+        public void RepetitionPlus(string input, SimulationState expectedResult)
+        {
+            SimulationState result = RegexEngine.Simulate("(foo|bar|foobar)+#", input);
+
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [Test]
         [TestCase("a", "[a-z]#", SimulationState.Accepting)]
         [TestCase("a", "[b-z]#", SimulationState.OffTrack)]
         [TestCase("a", "[0-9a-z]#", SimulationState.Accepting)]

@@ -24,7 +24,6 @@ export class IntermediateCode extends Component {
                 '\t\treturn result;\r\n' +
               '\t}\r\n' +
             '}',
-            // ',//'{\r\n\tint bar;\r\n\r\n\tbar = 0;\r\n\r\n\tif(bar < 10) {\r\n\t\tbar = 1;\r\n\t}\r\n\telse if (bar < 20) {\r\n\t\tbar = 2;\r\n\t}\r\n\telse {\r\n\t\tbar = 3;\r\n\t}\r\n\r\n\tbar = 4;\r\n}',
             il: '',
             assembly: '',
             loading: true

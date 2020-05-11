@@ -6,7 +6,7 @@ export class RegexEngine extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { regex: '([0-9])*#', input: '135', loading: true, matches: false };
+        this.state = { regex: '(foo|bar|foobar)*#', input: 'foofoobar', loading: true, matches: true };
         this.regexChanged = this.regexChanged.bind(this);
         this.inputChanged = this.inputChanged.bind(this);
         this.reload = this.reload.bind(this);
@@ -18,14 +18,10 @@ export class RegexEngine extends Component {
 
     regexChanged(e) {
         this.setState({ regex: e.target.value });
-
-        this.reload();
     }
 
     inputChanged(e) {
         this.setState({ input: e.target.value });
-
-        this.reload();
     }
 
     reload() {
@@ -119,27 +115,31 @@ export class RegexEngine extends Component {
                     </div>
 
                     <div className="center">
-                      <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading.....'
-                          >
-                            { this.state.loading && <p>Loading</p>}
-                            <div ref="graphContainer1" className="graphContainer1">
-                            </div>
-                      </LoadingOverlay>
+                      <div style={{ overflow: 'auto' }}>
+                        <LoadingOverlay
+                            active={this.state.loading}
+                            spinner
+                            text='Loading.....'
+                            >
+                              { this.state.loading && <p>Loading</p>}
+                              <div ref="graphContainer1" className="graphContainer1">
+                              </div>
+                        </LoadingOverlay>
+                      </div>
                     </div>
 
                     <div className="right">
-                      <LoadingOverlay
-                          active={this.state.loading}
-                          spinner
-                          text='Loading.....'
-                          >
-                            { this.state.loading && <p>Loading</p>}
-                          <div ref="graphContainer2" className="graphContainer2">
-                          </div>
-                      </LoadingOverlay>
+                      <div style={{ overflow: 'auto' }}>
+                        <LoadingOverlay
+                            active={this.state.loading}
+                            spinner
+                            text='Loading.....'
+                            >
+                              { this.state.loading && <p>Loading</p>}
+                            <div ref="graphContainer2" className="graphContainer2">
+                            </div>
+                        </LoadingOverlay>
+                      </div>
                     </div>
                 </div>
             </div>

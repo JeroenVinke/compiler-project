@@ -19,7 +19,7 @@ namespace Compiler
 
             parser.Parse();
 
-            CodeGenerator.Generate(parser.GetIL());
+            Console.WriteLine(new CodeGenerator().GenerateAsString(parser.GetIL()));
 
             sw.Stop();
 

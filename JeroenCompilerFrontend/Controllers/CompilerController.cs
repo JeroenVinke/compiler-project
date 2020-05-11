@@ -26,7 +26,7 @@ namespace JeroenCompilerAPI.Controllers
             parser.Parse();
 
             result.IL = parser.GetILAsString();
-            result.Assembly = CodeGenerator.GenerateAsString(parser.GetIL());
+            result.Assembly = new CodeGenerator().GenerateAsString(parser.GetIL());
 
             return result;
         }
@@ -77,7 +77,11 @@ namespace JeroenCompilerAPI.Controllers
                 {
                     productionModel.SubProductions.Add(new SubProductionModel
                     {
-                        Expressions = x.Select(y => y.ToString()).ToList()
+                        Expressions = x.Select(y => new ExpressionModel
+                        {
+                            Name = y.ToString(),
+                            IsNonTerminalExpression = y is NonTerminalExpressionDefinition
+                        }).ToList()
                     });
                 });
 
@@ -152,7 +156,13 @@ namespace JeroenCompilerAPI.Controllers
 
     public class SubProductionModel
     {
-        public List<string> Expressions { get; set; }
+        public List<ExpressionModel> Expressions { get; set; }
+    }
+
+    public class ExpressionModel
+    {
+        public string Name { get; set; }
+        public bool IsNonTerminalExpression { get; set; }
     }
 
     public class CompilationRequest

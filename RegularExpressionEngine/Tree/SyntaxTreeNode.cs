@@ -167,22 +167,12 @@ namespace Compiler.RegularExpressionEngine
                     node.FollowPos.AddRange(followPositions.Except(node.FollowPos));
                 }
             }
-            if (Type == SyntaxTreeNodeType.Star)
+            if (Type == SyntaxTreeNodeType.Star
+                || Type == SyntaxTreeNodeType.Plus)
             {
-                List<SyntaxTreeNode> followPositions = FirstPos();
-
-                foreach (SyntaxTreeNode node in followPositions.Intersect(LastPos()))
+                foreach (SyntaxTreeNode node in LastPos())
                 {
-                    node.FollowPos.AddRange(followPositions.Except(node.FollowPos));
-                }
-            }
-            if (Type == SyntaxTreeNodeType.Plus)
-            {
-                List<SyntaxTreeNode> followPositions = FirstPos();
-
-                foreach (SyntaxTreeNode node in followPositions.Intersect(LastPos()))
-                {
-                    node.FollowPos.AddRange(followPositions.Except(node.FollowPos));
+                    node.FollowPos.AddRange(FirstPos());
                 }
             }
         }

@@ -7,10 +7,14 @@ using System.Linq;
 
 namespace Compiler.CodeGeneration
 {
-    public static class CodeGenerator
+    public class CodeGenerator
     {
-        public static List<AssemblyOperation> Generate(List<Instruction> instructions)
+        private Registers _registers;
+
+        public List<AssemblyOperation> Generate(List<Instruction> instructions)
         {
+            _registers = new Registers();
+
             List<Block> blocks = GetBlocks(instructions);
             List<AssemblyOperation> operations = new List<AssemblyOperation>();
 
@@ -28,6 +32,8 @@ namespace Compiler.CodeGeneration
 
                     if (instruction is FunctionInstruction functionInstruction)
                     {
+                        _registers.All.ForEach(x => x.Clear());
+
                         operations.Add(new LabelOperation()
                         {
                             Label = functionInstruction.Label.ToString()
@@ -35,13 +41,13 @@ namespace Compiler.CodeGeneration
 
                         operations.Add(new PushOperation()
                         {
-                            Target = Registers.RBP.Name
+                            Target = _registers.RBP.Name
                         });
 
                         operations.Add(new MoveOperation()
                         {
-                            Value = Registers.RSP.Name,
-                            Target = Registers.RBP.Name
+                            Value = _registers.RSP.Name,
+                            Target = _registers.RBP.Name
                         });
 
                         int blockSize = block.GetSize();
@@ -51,7 +57,7 @@ namespace Compiler.CodeGeneration
                             operations.Add(new SubtractOperation()
                             {
                                 Value = "" + blockSize,
-                                Target = Registers.RSP.Name
+                                Target = _registers.RSP.Name
                             });
                         }
 
@@ -133,11 +139,11 @@ namespace Compiler.CodeGeneration
                     }
                     else if (instruction is AddInstruction addInstruction)
                     {
-                        //operations.Add(new XorInstruction()
-                        //{
-                        //    Target = addInstruction.Address3.ToMemoryLocation(),
-                        //    Value = addInstruction.Address3.ToMemoryLocation()
-                        //});
+                        operations.Add(new XorInstruction()
+                        {
+                            Target = addInstruction.Address3.ToMemoryLocation(),
+                            Value = addInstruction.Address3.ToMemoryLocation()
+                        });
 
                         operations.Add(new AddOperation()
                         {
@@ -153,26 +159,35 @@ namespace Compiler.CodeGeneration
                     }
                     else if (instruction is ReturnInstruction returnInstruction)
                     {
+                        if (_registers.EAX.InUse && _registers.EAX.AddressInRegister != returnInstruction.Address1)
+                        {
+                            operations.Add(new MoveOperation()
+                            {
+                                Value = _registers.EAX.Name,
+                                Target = $"dword ptr [rbp - {_registers.EAX.AddressInRegister.RelativeAddress}]"
+                            });
+
+                            _registers.EAX.Clear();
+                        }
+
+                        if (!_registers.EAX.InUse)
+                        {
+                            operations.Add(new MoveOperation()
+                            {
+                                Value = returnInstruction.Address1.ToMemoryLocation(),
+                                Target = _registers.EAX.Name
+                            });
+                        }
+
                         operations.Add(new MoveOperation()
                         {
-                            Value = returnInstruction.Address1.ToMemoryLocation(),
-                            Target = Registers.EAX.Name
-                        });
-
-                        // EAX is the return value 
-                        // so the address that was previously in EAX
-                        // is probably no longer in EAX
-                        Registers.EAX.Clear();
-
-                        operations.Add(new MoveOperation()
-                        {
-                            Value = Registers.RBP.Name,
-                            Target = Registers.RSP.Name
+                            Value = _registers.RBP.Name,
+                            Target = _registers.RSP.Name
                         });
 
                         operations.Add(new PopOperation()
                         {
-                            Target = Registers.RBP.Name
+                            Target = _registers.RBP.Name
                         });
 
                         operations.Add(new ReturnOperation());
@@ -219,7 +234,7 @@ namespace Compiler.CodeGeneration
             return operations;
         }
 
-        public static string GenerateAsString(List<Instruction> instructions)
+        public string GenerateAsString(List<Instruction> instructions)
         {
             string result = "";
 
@@ -231,14 +246,14 @@ namespace Compiler.CodeGeneration
             return result;
         }
 
-        private static void AllocateRegisters(ref int relativeAddress, List<AssemblyOperation> operations, Instruction instruction)
+        private void AllocateRegisters(ref int relativeAddress, List<AssemblyOperation> operations, Instruction instruction)
         {
             AllocateRegister(ref relativeAddress, instruction, instruction.Address1, operations);
             AllocateRegister(ref relativeAddress, instruction, instruction.Address2, operations);
             AllocateRegister(ref relativeAddress, instruction, instruction.Address3, operations);
         }
 
-        private static void AllocateRegister(ref int relativeAddress, Instruction instruction, Address address, List<AssemblyOperation> operations)
+        private void AllocateRegister(ref int relativeAddress, Instruction instruction, Address address, List<AssemblyOperation> operations)
         {
             if (address == null)
             {
@@ -284,9 +299,9 @@ namespace Compiler.CodeGeneration
             }
         }
 
-        private static void Spill(List<AssemblyOperation> operations, Instruction instruction, Address address)
+        private void Spill(List<AssemblyOperation> operations, Instruction instruction, Address address)
         {
-            foreach (Register register in Registers.All)
+            foreach (Register register in _registers.All)
             {
                 LiveAnalysisEntry candidateEntry = instruction.LiveVariableEntries.FirstOrDefault(x => x.Variable.Register != null && !instruction.GetAddresses().Contains(x.Variable));
 
@@ -313,14 +328,14 @@ namespace Compiler.CodeGeneration
             }
         }
 
-        private static bool TryAssignRegister(Address address)
+        private bool TryAssignRegister(Address address)
         {
             if (address.Register != null)
             {
                 return true;
             }
 
-            foreach (Register register in Registers.All)
+            foreach (Register register in _registers.All)
             {
                 if (register.AddressInRegister == null)
                 {
@@ -333,7 +348,7 @@ namespace Compiler.CodeGeneration
             return false;
         }
 
-        private static List<Block> GetBlocks(List<Instruction> instructions)
+        private List<Block> GetBlocks(List<Instruction> instructions)
         {
             List<Instruction> leaders = GetLeaders(instructions);
             List<Block> blocks = new List<Block>();
@@ -354,7 +369,7 @@ namespace Compiler.CodeGeneration
             return blocks;
         }
 
-        private static List<Instruction> GetLeaders(List<Instruction> instructions)
+        private List<Instruction> GetLeaders(List<Instruction> instructions)
         {
             List<Instruction> leaders = new List<Instruction>();
             bool lastInstructionWasJump = false;

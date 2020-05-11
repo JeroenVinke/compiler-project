@@ -2,16 +2,29 @@
 
 namespace Compiler.Common
 {
-    public static class Registers
+    public class Registers
     {
-        public static Register EAX { get; set; } = new Register() { Name = "EAX" };
-        public static Register EBX { get; set; } = new Register() { Name = "EBX" };
-        public static Register ECX { get; set; } = new Register() { Name = "ECX" };
-        public static Register RSP { get; set; } = new Register() { Name = "RSP" };
-        public static Register RBP { get; set; } = new Register() { Name = "RBP" };
-        public static List<Register> All { get; } = new List<Register>
+        public Register EAX { get; set; } = new Register() { Name = "EAX" };
+        public Register EBX { get; set; } = new Register() { Name = "EBX" };
+        public Register ECX { get; set; } = new Register() { Name = "ECX" };
+        public Register RSP { get; set; } = new Register() { Name = "RSP" };
+        public Register RBP { get; set; } = new Register() { Name = "RBP" };
+
+        private List<Register> _all;
+        public List<Register> All
         {
-            EAX, EBX, ECX
-        };
+            get
+            {
+                if (_all == null)
+                {
+                    _all = new List<Register>
+                    {
+                        EAX, EBX, ECX
+                    };
+                }
+
+                return _all;
+            }
+        }
     }
 }
